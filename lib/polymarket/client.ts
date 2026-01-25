@@ -1,4 +1,5 @@
 import type { MarketData, OrderParams, OrderResult, TradeSide } from '../types';
+import { marketCache } from './cache';
 
 /**
  * Polymarket CLOB API Client
@@ -30,6 +31,14 @@ export class PolymarketClient {
    */
   async getMarkets(options: { limit?: number } = {}): Promise<MarketData[]> {
     const { limit = 100 } = options;
+    const cacheKey = `markets:${limit}`;
+
+    // Vérifier le cache (TTL 5 minutes pour éviter trop d'appels API)
+    const cached = marketCache.get<MarketData[]>(cacheKey);
+    if (cached) {
+      console.log(`[POLYMARKET] Using cached markets (${cached.length} markets)`);
+      return cached;
+    }
 
     try {
       // Utiliser GAMMA API pour récupérer les vrais marchés
@@ -55,8 +64,13 @@ export class PolymarketClient {
       }
 
       const markets = await response.json();
-      console.log(`[POLYMARKET] Fetched ${markets.length} real markets from Gamma API`);
-      return this.parseGammaMarkets(markets);
+      const parsed = this.parseGammaMarkets(markets);
+
+      // Mettre en cache pour 5 minutes
+      marketCache.set(cacheKey, parsed, 5 * 60 * 1000);
+      console.log(`[POLYMARKET] Fetched ${markets.length} real markets from Gamma API (cached)`);
+
+      return parsed;
     } catch (error) {
       console.error('[POLYMARKET] Error fetching markets from Gamma API:', error);
       console.log('[POLYMARKET] Falling back to mock markets');
