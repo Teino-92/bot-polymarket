@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // Récupérer tous les trades fermés
-    const { data: closedTrades, error: tradesError } = await supabaseAdminAdmin
+    const { data: closedTrades, error: tradesError } = await supabaseAdmin
       .from('trades')
       .select('*')
       .in('status', ['CLOSED', 'STOPPED']);
