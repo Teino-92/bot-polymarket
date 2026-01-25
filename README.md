@@ -177,8 +177,6 @@ npm install
 
 ### 4. Variables d'environnement
 
-Copier `.env.local.example` vers `.env.local`:
-
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
@@ -251,7 +249,7 @@ Avant de passer `SIMULATION_MODE=false`:
 ### Activation mode réel
 
 ```bash
-# Dans .env.local
+# Dans .env
 SIMULATION_MODE=false
 ```
 
@@ -406,7 +404,6 @@ export const BOT_CONFIG = {
 
 ```bash
 # .gitignore contient déjà:
-.env*.local
 .env
 ```
 
