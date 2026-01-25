@@ -1,0 +1,341 @@
+# Polymarket Trading Bot - Project Rules
+
+## Project Overview
+
+Automated trading bot for Polymarket prediction markets with real-time monitoring dashboard.
+
+**Key Features:**
+- Intelligent market making (HOLD vs FLIP strategies)
+- Risk management (stop-loss, position sizing, cooldown)
+- Real-time dashboard (Next.js + Recharts)
+- Simulation mode (100% safe testing)
+- PostgreSQL database (Supabase)
+
+## Architecture
+
+### Tech Stack
+- **Frontend**: Next.js 14 (App Router), React 18, TypeScript, Tailwind
+- **Backend**: Next.js API Routes, Supabase Edge Functions
+- **Database**: PostgreSQL (Supabase)
+- **Blockchain**: Viem, Wagmi (Polygon)
+- **Charts**: Recharts
+- **Data Fetching**: SWR
+
+### Core Formulas
+
+1. **Hold Value Score (HVS)**
+   ```
+   HVS = (Expected Profit × Win Probability)
+       - (Max Loss × Loss Probability)
+       - (Opportunity Cost)
+       - (Long Term Penalty)
+   ```
+   Location: `lib/calculators/hvs-calculator.ts`
+
+2. **Flip Expected Value (FlipEV)**
+   ```
+   FlipEV = (Spread × Size × Fill Probability) × Total Flips
+   ```
+   Location: `lib/calculators/flip-ev-calculator.ts`
+
+3. **Strategy Decision**
+   - HOLD if: HVS >= 5€ AND HVS > FlipEV × 1.3
+   - FLIP if: FlipEV >= 3€ AND Spread >= 3%
+   - SKIP otherwise
+
+   Location: `lib/polymarket/strategy.ts`
+
+## File Structure
+
+```
+app/
+├── page.tsx                     # Main dashboard
+└── api/                         # API routes
+    ├── overview/route.ts        # Global stats
+    ├── positions/route.ts       # Active positions
+    ├── opportunities/route.ts   # Top markets
+    └── bot/
+        ├── execute/route.ts     # Bot execution
+        └── analyze/route.ts     # Market analysis
+
+lib/
+├── calculators/                 # HVS & FlipEV formulas
+├── polymarket/                  # Bot core logic
+│   ├── client.ts               # API wrapper + simulation
+│   ├── strategy.ts             # Decision logic
+│   ├── market-selector.ts      # Market scanner
+│   └── risk-manager.ts         # Risk management
+├── config.ts                    # Bot configuration
+└── types.ts                     # TypeScript types
+
+components/
+└── Dashboard/                   # React components
+
+supabase/
+├── migrations/                  # Database schema
+└── functions/                   # Edge functions (cron)
+```
+
+## Code Standards
+
+### TypeScript
+
+- **Strict mode**: Always enabled
+- **Types**: Import from `lib/types.ts`
+- **No `any`**: Use proper types or `unknown`
+
+### React Components
+
+```typescript
+// Use 'use client' for client components
+'use client';
+
+import type { Position } from '@/lib/types';
+
+interface PositionCardProps {
+  position: Position;
+}
+
+export function PositionCard({ position }: PositionCardProps) {
+  // Implementation
+}
+```
+
+### API Routes
+
+```typescript
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
+
+export async function GET() {
+  try {
+    const { data, error } = await supabase.from('table').select('*');
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+### Database Queries
+
+```typescript
+// Use supabaseAdmin for server-side operations
+import { supabaseAdmin } from '@/lib/supabase';
+
+// Use supabase for client-side operations
+import { supabase } from '@/lib/supabase';
+```
+
+## Configuration
+
+### Environment Variables
+
+**Required:**
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key
+
+**Optional:**
+- `SIMULATION_MODE`: "true" (default) or "false"
+- `WALLET_PRIVATE_KEY`: Polygon wallet private key
+- `POLYMARKET_API_KEY`: Polymarket API key
+
+### Bot Parameters
+
+Edit `lib/config.ts`:
+
+```typescript
+export const BOT_CONFIG = {
+  totalCapitalEur: 150,           // Total capital
+  maxPositions: 2,                // Max simultaneous positions
+  maxPositionSizeEur: 75,         // Max size per position
+  minHVSForHold: 5,               // Min HVS for HOLD strategy
+  minFlipEV: 3,                   // Min FlipEV for FLIP strategy
+  stopLossPercent: 0.15,          // Stop-loss at -15%
+  takeProfitPercent: 0.08,        // Take-profit at +8%
+  // ... see config.ts for all options
+};
+```
+
+## Testing
+
+### Run Calculator Tests
+
+```bash
+npm run test:calculators
+```
+
+Expected output: All tests pass ✅
+
+### Test API Routes
+
+```bash
+# Analyze markets
+curl -X POST http://localhost:3000/api/bot/analyze
+
+# Execute bot (simulation)
+curl -X POST http://localhost:3000/api/bot/execute
+
+# Get positions
+curl http://localhost:3000/api/positions
+```
+
+### Seed Demo Data
+
+```bash
+npm run seed:demo
+```
+
+## Development Workflow
+
+1. **Start dev server**
+   ```bash
+   npm run dev
+   ```
+
+2. **Make changes** to code
+
+3. **Test calculators** if formulas modified
+   ```bash
+   npm run test:calculators
+   ```
+
+4. **Test API routes** manually
+
+5. **Check dashboard** at http://localhost:3000
+
+## Important Rules
+
+### Security
+
+1. **NEVER commit** `.env.local` or private keys
+2. **ALWAYS start** in simulation mode (`SIMULATION_MODE=true`)
+3. **NEVER use** real wallet keys in development
+4. **ALWAYS validate** user inputs in API routes
+
+### Simulation Mode
+
+**Default behavior:**
+- All analysis runs normally
+- NO real orders placed on Polymarket
+- NO blockchain transactions
+- Logs show: `🎮 [SIMULATION]`
+
+**To verify simulation mode:**
+```typescript
+import { polymarketClient } from '@/lib/polymarket/client';
+
+console.log(polymarketClient.isSimulation()); // true
+```
+
+### Risk Management
+
+**Never modify** these safeguards:
+- Stop-loss detection (`risk-manager.ts:159`)
+- Position limit checks (`risk-manager.ts:27`)
+- Cooldown enforcement (`risk-manager.ts:56`)
+
+### Database
+
+**Always use migrations:**
+- Never modify schema directly in Supabase
+- Create new migration files in `supabase/migrations/`
+- Number them sequentially (005_, 006_, etc.)
+
+## Common Tasks
+
+### Add New Market Filter
+
+Edit `lib/config.ts`:
+```typescript
+marketFilters: {
+  excludeCategories: ['crypto', 'sports', 'NEW_CATEGORY'],
+  // ...
+}
+```
+
+### Adjust Risk Parameters
+
+Edit `lib/config.ts`:
+```typescript
+stopLossPercent: 0.20,  // Change from 15% to 20%
+```
+
+### Add New API Route
+
+1. Create `app/api/[name]/route.ts`
+2. Export `GET` or `POST` function
+3. Use `supabase` for queries
+4. Return `NextResponse.json()`
+
+### Add New Dashboard Component
+
+1. Create `components/Dashboard/[Name].tsx`
+2. Use 'use client' directive
+3. Import types from `@/lib/types`
+4. Add to `app/page.tsx`
+
+## Debugging
+
+### Check Logs
+
+```bash
+# In terminal running npm run dev
+# Look for these prefixes:
+# 🎮 [SIMULATION] - Simulation mode
+# 🔴 [REAL TRADING] - Real mode (dangerous!)
+# 🔍 [MARKET SCANNER] - Market scanning
+# 🛡️  [RISK MANAGER] - Risk checks
+# 🤖 [BOT EXECUTE] - Bot execution
+```
+
+### Supabase Debugging
+
+```typescript
+const { data, error } = await supabase.from('table').select('*');
+console.log('Data:', data);
+console.log('Error:', error);
+```
+
+### Calculator Debugging
+
+```bash
+# Run tests with verbose output
+npm run test:calculators
+```
+
+## Documentation
+
+- **README.md**: Complete project documentation
+- **SETUP.md**: Detailed setup guide
+- **QUICKSTART.md**: 5-minute quickstart
+- **PROJECT_SUMMARY.md**: Project overview
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy
+
+### Railway
+
+1. Install Railway CLI
+2. Run `railway up`
+3. Configure environment variables
+
+## Support
+
+For questions or issues:
+1. Check documentation (README.md, SETUP.md)
+2. Review code comments
+3. Test in simulation mode first
+4. Check Supabase logs
+
+## License
+
+MIT
