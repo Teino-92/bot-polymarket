@@ -222,22 +222,24 @@ export class PolymarketClient {
         );
       })
       .map((market) => {
-        // outcomePrices est un string JSON: "[\"0.5\", \"0.5\"]"
-        let yesPrice = 0.5;
-        let noPrice = 0.5;
+        // Gamma API fournit déjà bestBid et bestAsk réels !
+        let bestBid = parseFloat(market.bestBid) || 0;
+        let bestAsk = parseFloat(market.bestAsk) || 0;
 
-        try {
-          const prices = JSON.parse(market.outcomePrices);
-          yesPrice = parseFloat(prices[0]) || 0.5;
-          noPrice = parseFloat(prices[1]) || 0.5;
-        } catch (e) {
-          console.warn(`[POLYMARKET] Failed to parse prices for ${market.id}:`, e);
+        // Si bid/ask non disponibles, utiliser outcomePrices avec spread estimé
+        if (bestBid === 0 || bestAsk === 0) {
+          try {
+            const prices = JSON.parse(market.outcomePrices);
+            const yesPrice = parseFloat(prices[0]) || 0.5;
+            const estimatedSpread = 0.03;
+            bestBid = Math.max(0, yesPrice - estimatedSpread / 2);
+            bestAsk = Math.min(1, yesPrice + estimatedSpread / 2);
+          } catch (e) {
+            console.warn(`[POLYMARKET] Failed to parse prices for ${market.id}:`, e);
+            bestBid = 0.485;
+            bestAsk = 0.515;
+          }
         }
-
-        // Estimer bid/ask avec un spread de 3% (sera amélioré avec CLOB API)
-        const estimatedSpread = 0.03;
-        const bestBid = Math.max(0, yesPrice - estimatedSpread / 2);
-        const bestAsk = Math.min(1, yesPrice + estimatedSpread / 2);
 
         return {
           id: market.conditionId || market.id || `gamma-${Date.now()}`,
