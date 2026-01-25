@@ -45,8 +45,8 @@ export async function scanTopMarkets(
 ): Promise<Opportunity[]> {
   console.log('🔍 [MARKET SCANNER] Starting market scan...');
 
-  // 1. Fetch marchés depuis Polymarket
-  const markets = await polymarketClient.getMarkets({ limit: 100 });
+  // 1. Fetch marchés depuis Polymarket (limite max Gamma API = 500)
+  const markets = await polymarketClient.getMarkets({ limit: 500 });
   console.log(`   Found ${markets.length} markets from Polymarket`);
 
   // 2. Appliquer les filtres
