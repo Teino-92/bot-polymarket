@@ -4,7 +4,7 @@
  * Exécuté par cron toutes les 4 heures via Supabase Cron
  *
  * Configuration cron (dans Supabase Dashboard):
- * Schedule: 0 */4 * * *  (Toutes les 4 heures)
+ * Schedule: Every 4 hours (0 star-slash-4 star star star)
  * HTTP Request: POST
  * URL: https://your-project.supabase.co/functions/v1/bot-execute
  */
