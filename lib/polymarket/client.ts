@@ -250,6 +250,10 @@ export class PolymarketClient {
           bestBid,
           bestAsk,
           volume24h: parseFloat(market.volumeNum || market.volume) || 0,
+          volume1w: parseFloat(market.volume1wk) || 0,
+          volume1mo: parseFloat(market.volume1mo) || 0,
+          priceChange1h: parseFloat(market.oneHourPriceChange) || 0,
+          lastTradePrice: parseFloat(market.lastTradePrice) || 0,
         };
       });
   }

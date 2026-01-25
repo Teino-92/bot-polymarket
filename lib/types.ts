@@ -8,6 +8,10 @@ export interface MarketData {
   bestBid: number;
   bestAsk: number;
   volume24h?: number;
+  volume1w?: number;       // Volume sur 1 semaine
+  volume1mo?: number;      // Volume sur 1 mois
+  priceChange1h?: number;  // Variation de prix sur 1h (momentum)
+  lastTradePrice?: number; // Dernier prix de trade
 }
 
 export interface MarketAnalysis {
