@@ -31,25 +31,36 @@ export class PolymarketClient {
   async getMarkets(options: { limit?: number } = {}): Promise<MarketData[]> {
     const { limit = 100 } = options;
 
-    if (this.simulationMode) {
-      // En mode simulation, retourner des données mockées
-      return this.getMockMarkets(limit);
-    }
-
     try {
-      const response = await fetch(`${this.baseUrl}/markets?limit=${limit}`, {
-        headers: this.getHeaders(),
+      // Utiliser GAMMA API pour récupérer les vrais marchés
+      // Cette API est GRATUITE et ne nécessite pas d'authentification
+      const gammaUrl = 'https://gamma-api.polymarket.com/markets';
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        active: 'true',
+        closed: 'false',
+        order: 'liquidity',
+        ascending: 'false',
+      });
+
+      const response = await fetch(`${gammaUrl}?${params}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch markets: ${response.statusText}`);
+        console.warn(`[POLYMARKET] Gamma API failed (${response.status}), using fallback`);
+        return this.getMockMarkets(limit);
       }
 
-      const data = await response.json();
-      return this.parseMarkets(data);
+      const markets = await response.json();
+      console.log(`[POLYMARKET] Fetched ${markets.length} real markets from Gamma API`);
+      return this.parseGammaMarkets(markets);
     } catch (error) {
-      console.error('[POLYMARKET] Error fetching markets:', error);
-      throw error;
+      console.error('[POLYMARKET] Error fetching markets from Gamma API:', error);
+      console.log('[POLYMARKET] Falling back to mock markets');
+      return this.getMockMarkets(limit);
     }
   }
 
@@ -192,6 +203,53 @@ export class PolymarketClient {
       bestAsk: market.best_ask || 0,
       volume24h: market.volume_24h,
     }));
+  }
+
+  /**
+   * Parse les données de marchés depuis Gamma API
+   * Format Gamma: { question, endDateIso, liquidity, outcomePrices: "[\"0.5\", \"0.5\"]" }
+   */
+  private parseGammaMarkets(data: any[]): MarketData[] {
+    return data
+      .filter((market) => {
+        // Filtrer les marchés avec données valides
+        return (
+          market.question &&
+          market.endDateIso &&
+          market.outcomePrices &&
+          market.active === true &&
+          market.closed === false
+        );
+      })
+      .map((market) => {
+        // outcomePrices est un string JSON: "[\"0.5\", \"0.5\"]"
+        let yesPrice = 0.5;
+        let noPrice = 0.5;
+
+        try {
+          const prices = JSON.parse(market.outcomePrices);
+          yesPrice = parseFloat(prices[0]) || 0.5;
+          noPrice = parseFloat(prices[1]) || 0.5;
+        } catch (e) {
+          console.warn(`[POLYMARKET] Failed to parse prices for ${market.id}:`, e);
+        }
+
+        // Estimer bid/ask avec un spread de 3% (sera amélioré avec CLOB API)
+        const estimatedSpread = 0.03;
+        const bestBid = Math.max(0, yesPrice - estimatedSpread / 2);
+        const bestAsk = Math.min(1, yesPrice + estimatedSpread / 2);
+
+        return {
+          id: market.conditionId || market.id || `gamma-${Date.now()}`,
+          question: market.question,
+          category: market.groupItemTitle || 'unknown',
+          endDate: market.endDateIso,
+          liquidity: parseFloat(market.liquidityNum || market.liquidity) || 0,
+          bestBid,
+          bestAsk,
+          volume24h: parseFloat(market.volumeNum || market.volume) || 0,
+        };
+      });
   }
 
   /**

@@ -77,17 +77,25 @@ export function filterMarkets(
   markets: MarketData[],
   filters: MarketFilters
 ): MarketData[] {
-  return markets.filter((market) => {
+  let liquidityFail = 0;
+  let spreadFail = 0;
+  let timeFail = 0;
+  let categoryFail = 0;
+  let priceFail = 0;
+
+  const filtered = markets.filter((market) => {
     const spread = market.bestAsk - market.bestBid;
     const daysUntil = calculateDaysUntilResolution(market.endDate);
 
     // Vérifier liquidité
     if (market.liquidity < filters.minLiquidityUsd) {
+      liquidityFail++;
       return false;
     }
 
     // Vérifier spread
     if (spread < filters.minSpread || spread > filters.maxSpread) {
+      spreadFail++;
       return false;
     }
 
@@ -96,11 +104,13 @@ export function filterMarkets(
       daysUntil < filters.minDaysUntilResolution ||
       daysUntil > filters.maxDaysUntilResolution
     ) {
+      timeFail++;
       return false;
     }
 
     // Vérifier catégories exclues
     if (filters.excludeCategories.includes(market.category.toLowerCase())) {
+      categoryFail++;
       return false;
     }
 
@@ -109,6 +119,7 @@ export function filterMarkets(
       filters.preferCategories.length > 0 &&
       !filters.preferCategories.includes(market.category.toLowerCase())
     ) {
+      categoryFail++;
       return false;
     }
 
@@ -120,11 +131,16 @@ export function filterMarkets(
       market.bestAsk >= 1 ||
       market.bestBid >= market.bestAsk
     ) {
+      priceFail++;
       return false;
     }
 
     return true;
   });
+
+  console.log(`   Filter failures: liquidity=${liquidityFail}, spread=${spreadFail}, time=${timeFail}, category=${categoryFail}, price=${priceFail}`);
+
+  return filtered;
 }
 
 /**

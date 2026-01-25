@@ -19,13 +19,13 @@ export const BOT_CONFIG = {
 
   // Market filters
   marketFilters: {
-    minLiquidityUsd: 10000,
-    minSpread: 0.03,
-    maxSpread: 0.15,
+    minLiquidityUsd: 1000,   // Réduit de 10k à 1k pour Gamma API réelle
+    minSpread: 0.01,         // Réduit de 3% à 1% pour marchés réels
+    maxSpread: 0.20,         // Augmenté de 15% à 20%
     minDaysUntilResolution: 2,
-    maxDaysUntilResolution: 90,
+    maxDaysUntilResolution: 365, // Augmenté de 90 à 365 jours
     excludeCategories: ['crypto', 'sports'],
-    preferCategories: ['politics', 'entertainment', 'tech', 'business']
+    preferCategories: [] // Désactivé pour tester tous les marchés réels
   } as MarketFilters,
 
   // FlipEV calculation
