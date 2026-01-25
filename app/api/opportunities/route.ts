@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     // Récupérer les derniers scans (dernière heure)
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-    const { data: scans, error } = await supabase
+    const { data: scans, error } = await supabaseAdmin
       .from('market_scan')
       .select('*')
       .gte('scanned_at', oneHourAgo)

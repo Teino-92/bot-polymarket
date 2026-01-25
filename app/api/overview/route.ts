@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import type { DashboardOverview } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // Récupérer tous les trades fermés
-    const { data: closedTrades, error: tradesError } = await supabase
+    const { data: closedTrades, error: tradesError } = await supabaseAdminAdmin
       .from('trades')
       .select('*')
       .in('status', ['CLOSED', 'STOPPED']);
@@ -15,7 +15,7 @@ export async function GET() {
     if (tradesError) throw tradesError;
 
     // Récupérer les positions actives pour unrealized PnL
-    const { data: positions, error: positionsError } = await supabase
+    const { data: positions, error: positionsError } = await supabaseAdmin
       .from('positions')
       .select('*');
 
@@ -41,7 +41,7 @@ export async function GET() {
 
     // Calculer PnL change 24h
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data: recentTrades } = await supabase
+    const { data: recentTrades } = await supabaseAdmin
       .from('trades')
       .select('*')
       .gte('closed_at', oneDayAgo)
@@ -61,7 +61,7 @@ export async function GET() {
       const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
 
-      const { data: dayTrades } = await supabase
+      const { data: dayTrades } = await supabaseAdmin
         .from('trades')
         .select('*')
         .gte('closed_at', new Date(date.setHours(0, 0, 0, 0)).toISOString())
