@@ -125,14 +125,19 @@ export function filterMarkets(
     const spread = market.bestAsk - market.bestBid;
     const daysUntil = calculateDaysUntilResolution(market.endDate);
 
-    // Vérifier liquidité
-    if (market.liquidity < filters.minLiquidityUsd) {
+    // Vérifier liquidité (avec exception pour marchés à fort volume)
+    // Si volume24h > 500$ OU volume1w > 2000$, accepter même avec faible liquidité
+    const hasHighVolume = (market.volume24h || 0) > 500 || (market.volume1w || 0) > 2000;
+    if (market.liquidity < filters.minLiquidityUsd && !hasHighVolume) {
       liquidityFail++;
       return false;
     }
 
-    // Vérifier spread
-    if (spread < filters.minSpread || spread > filters.maxSpread) {
+    // Vérifier spread (avec exception pour marchés avec fort momentum)
+    // Si momentum > 2%, accepter spread plus large (jusqu'à 30%)
+    const hasMomentum = Math.abs(market.priceChange1h || 0) > 0.02;
+    const maxSpreadAdjusted = hasMomentum ? 0.30 : filters.maxSpread;
+    if (spread < filters.minSpread || spread > maxSpreadAdjusted) {
       spreadFail++;
       return false;
     }
