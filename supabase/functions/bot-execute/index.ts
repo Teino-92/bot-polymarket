@@ -14,7 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 serve(async (req) => {
   try {
     // Appeler la route API Next.js qui contient toute la logique
-    const nextApiUrl = Deno.env.get('NEXT_PUBLIC_URL') || 'http://localhost:3000';
+    const nextApiUrl = Deno.env.get('NEXT_PUBLIC_URL') || 'https://bot-polymarket-kappa.vercel.app';
     const response = await fetch(`${nextApiUrl}/api/bot/execute`, {
       method: 'POST',
       headers: {
