@@ -5,6 +5,8 @@ import { polymarketClient } from '@/lib/polymarket/client';
 import { supabaseAdmin } from '@/lib/supabase';
 import { BOT_CONFIG } from '@/lib/config';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Route principale d'exécution du bot
  * Appelée par cron toutes les 4 heures (ou manuellement)

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import type { DashboardOverview } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Récupérer tous les trades fermés

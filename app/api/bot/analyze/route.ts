@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { scanTopMarkets } from '@/lib/polymarket/market-selector';
 import { supabaseAdmin } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Analyse les marchés et stocke les résultats dans market_scan
  * Cette route peut être appelée manuellement ou par le bot
