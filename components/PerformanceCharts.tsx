@@ -39,8 +39,10 @@ interface PerformanceChartsProps {
 export default function PerformanceCharts({ trades, period = 7 }: PerformanceChartsProps) {
   // Préparer les données pour le graphique PnL au fil du temps
   const pnlOverTime = useMemo(() => {
+    if (!trades || trades.length === 0) return [];
+
     const closedTrades = trades
-      .filter(t => t.status === 'CLOSED' && t.closed_at && t.pnl_eur !== undefined)
+      .filter(t => t.status === 'CLOSED' && t.closed_at && t.pnl_eur !== undefined && t.pnl_eur !== null)
       .sort((a, b) => new Date(a.closed_at!).getTime() - new Date(b.closed_at!).getTime());
 
     const cutoffDate = new Date();
@@ -57,7 +59,7 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
           date: tradeDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
           pnl: trade.pnl_eur!,
           cumulative: cumulativePnL,
-          volume: trade.position_size_eur,
+          volume: trade.position_size_eur || 0,
         });
       }
     });
@@ -67,7 +69,9 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
 
   // Préparer les données pour le graphique Win/Loss
   const winLossData = useMemo(() => {
-    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined);
+    if (!trades || trades.length === 0) return [];
+
+    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
     const wins = closed.filter(t => t.pnl_eur! > 0).length;
     const losses = closed.filter(t => t.pnl_eur! <= 0).length;
 
@@ -79,7 +83,9 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
 
   // Préparer les données pour le graphique par stratégie
   const strategyPerformance = useMemo(() => {
-    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined);
+    if (!trades || trades.length === 0) return [];
+
+    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
 
     const holdTrades = closed.filter(t => t.strategy === 'HOLD');
     const flipTrades = closed.filter(t => t.strategy === 'FLIP');
@@ -88,11 +94,11 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
     const flipPnL = flipTrades.reduce((sum, t) => sum + (t.pnl_eur || 0), 0);
 
     const holdWinRate = holdTrades.length > 0
-      ? (holdTrades.filter(t => t.pnl_eur! > 0).length / holdTrades.length) * 100
+      ? (holdTrades.filter(t => (t.pnl_eur || 0) > 0).length / holdTrades.length) * 100
       : 0;
 
     const flipWinRate = flipTrades.length > 0
-      ? (flipTrades.filter(t => t.pnl_eur! > 0).length / flipTrades.length) * 100
+      ? (flipTrades.filter(t => (t.pnl_eur || 0) > 0).length / flipTrades.length) * 100
       : 0;
 
     return [
