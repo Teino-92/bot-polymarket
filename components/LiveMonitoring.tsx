@@ -25,8 +25,22 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
     const checkWebSocket = async () => {
       try {
         // Essayer de ping le service WebSocket (Railway)
-        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'https://bot-polymarket-websocket.up.railway.app';
-        const response = await fetch(`${wsUrl}/health`, { signal: AbortSignal.timeout(5000) });
+        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
+
+        // Si pas d'URL configurée, on considère offline
+        if (!wsUrl) {
+          setWebsocketStatus('offline');
+          return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(`${wsUrl}/health`, {
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           setWebsocketStatus('online');
@@ -42,10 +56,18 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
       }
     };
 
-    checkWebSocket();
-    const interval = setInterval(checkWebSocket, 30000); // Vérifier toutes les 30s
+    // Premier check après 1 seconde pour éviter les problèmes au chargement
+    const initialTimeout = setTimeout(() => {
+      checkWebSocket();
+    }, 1000);
 
-    return () => clearInterval(interval);
+    // Puis vérifier toutes les 30s
+    const interval = setInterval(checkWebSocket, 30000);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   // Calculer le temps jusqu'au prochain cron (toutes les 4h : 00:00, 04:00, 08:00, 12:00, 16:00, 20:00)
