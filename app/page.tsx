@@ -8,8 +8,9 @@ import { OpportunityCard } from '@/components/Dashboard/OpportunityCard';
 import { PnLChart } from '@/components/Dashboard/PnLChart';
 import PerformanceCharts from '@/components/PerformanceCharts';
 import TradeHistory from '@/components/TradeHistory';
-import ManualControls from '@/components/ManualControls';
 import LiveMonitoring from '@/components/LiveMonitoring';
+import ThemeToggle from '@/components/ThemeToggle';
+import Link from 'next/link';
 import type { DashboardOverview, Position, Opportunity } from '@/lib/types';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -33,65 +34,29 @@ export default function Dashboard() {
     refreshInterval: 30000, // 30s
   });
 
-  const { data: config, mutate: mutateConfig } = useSWR<any>('/api/bot/config', fetcher, {
+  const { data: config } = useSWR<any>('/api/bot/config', fetcher, {
     refreshInterval: 10000, // 10s
   });
 
-  // Handlers pour les contrôles manuels
-  const handleScan = async () => {
-    try {
-      const response = await fetch('/api/bot/scan', { method: 'POST' });
-      const result = await response.json();
-      if (result.success) {
-        // Rafraîchir les données
-        mutateConfig();
-      }
-      return result;
-    } catch (error) {
-      console.error('Scan error:', error);
-      return { success: false, error: String(error) };
-    }
-  };
-
-  const handleTogglePause = async () => {
-    try {
-      const response = await fetch('/api/bot/config/pause', { method: 'POST' });
-      const result = await response.json();
-      if (result.success) {
-        mutateConfig();
-      }
-      return result;
-    } catch (error) {
-      console.error('Toggle pause error:', error);
-      return { success: false, error: String(error) };
-    }
-  };
-
-  const handleUpdateConfig = async (updates: any) => {
-    try {
-      const response = await fetch('/api/bot/config', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const result = await response.json();
-      if (result.success) {
-        mutateConfig();
-      }
-      return result;
-    } catch (error) {
-      console.error('Update config error:', error);
-      return { success: false, error: String(error) };
-    }
-  };
-
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Polymarket Bot Dashboard</h1>
-        <p className="text-gray-500">Capital: 150€ | Max positions: 2</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Polymarket Bot Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400">Capital: 150€ | Max positions: 2</p>
+          </div>
+          <div className="flex gap-3">
+            <ThemeToggle />
+            <Link
+              href="/bot-config"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              ⚙️ Configuration
+            </Link>
+          </div>
+        </div>
 
       {/* Live Monitoring */}
       <div className="mb-8">
@@ -161,18 +126,6 @@ export default function Dashboard() {
         <PerformanceCharts trades={trades || []} period={chartPeriod} />
       </div>
 
-      {/* Manual Controls */}
-      {config && (
-        <div className="mb-8">
-          <ManualControls
-            config={config}
-            onScan={handleScan}
-            onTogglePause={handleTogglePause}
-            onUpdateConfig={handleUpdateConfig}
-          />
-        </div>
-      )}
-
       {/* Active positions */}
       <div className="mb-8">
         <h2 className="text-xl font-bold mb-4">
@@ -211,6 +164,7 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }
