@@ -238,18 +238,18 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
                       {trade.side}
                     </span>
                   </td>
-                  <td className="px-4 py-3">{(trade.entry_price * 100).toFixed(1)}%</td>
+                  <td className="px-4 py-3">{((trade.entry_price || 0) * 100).toFixed(1)}%</td>
                   <td className="px-4 py-3">
                     {trade.exit_price ? `${(trade.exit_price * 100).toFixed(1)}%` : '-'}
                   </td>
-                  <td className="px-4 py-3">{trade.position_size_eur.toFixed(2)}€</td>
+                  <td className="px-4 py-3">{(trade.position_size_eur || 0).toFixed(2)}€</td>
                   <td className="px-4 py-3">
-                    {trade.pnl_eur !== undefined ? (
+                    {trade.pnl_eur !== undefined && trade.pnl_eur !== null ? (
                       <span className={trade.pnl_eur >= 0 ? 'text-green-400' : 'text-red-400'}>
                         {trade.pnl_eur >= 0 ? '+' : ''}
                         {trade.pnl_eur.toFixed(2)}€
                         <span className="text-xs ml-1">
-                          ({((trade.pnl_eur / trade.position_size_eur) * 100).toFixed(1)}%)
+                          ({((trade.pnl_eur / (trade.position_size_eur || 1)) * 100).toFixed(1)}%)
                         </span>
                       </span>
                     ) : (
