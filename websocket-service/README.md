@@ -1,101 +1,92 @@
-# Polymarket WebSocket Service
+# Polymarket WebSocket Monitor Service
 
-Service Node.js persistant qui maintient une connexion WebSocket avec Polymarket pour monitorer les positions en temps réel.
+Service de surveillance en temps réel des positions Polymarket. Il se connecte au WebSocket de Polymarket et surveille automatiquement les prix pour déclencher les stop-loss et take-profit.
 
 ## Fonctionnalités
 
-- ✅ Connexion WebSocket persistante à Polymarket
-- ✅ Monitoring en temps réel des positions actives
-- ✅ Détection automatique des stop-loss (-15%)
-- ✅ Détection automatique des take-profit (+8%)
-- ✅ Mise à jour automatique des prix dans Supabase
-- ✅ Fermeture automatique des positions
-- ✅ Reconnexion automatique en cas de déconnexion
+- 🔴 **Surveillance en temps réel** : Connexion WebSocket permanente à Polymarket
+- 🎯 **Stop-Loss automatique** : Ferme les positions quand le prix atteint le stop-loss
+- 💰 **Take-Profit automatique** : Ferme les positions FLIP au take-profit
+- 🔄 **Auto-reconnexion** : Reconnexion automatique en cas de déconnexion
+- 📊 **Health Check** : Endpoint `/health` pour monitoring
+- 🔍 **Status API** : Endpoint `/status` pour voir les positions surveillées
 
-## Déploiement gratuit
+## Déploiement sur Railway
 
-### Option 1: Railway.app (Recommandé)
+### Étape 1 : Créer un nouveau projet
 
-1. Créer un compte sur https://railway.app
-2. Créer un nouveau projet
-3. Connecter ce repo GitHub
-4. Définir le root directory: `websocket-service`
-5. Ajouter les variables d'environnement:
-   ```
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   ```
-6. Déployer !
+1. Va sur https://railway.app
+2. Clique sur "New Project"
+3. Sélectionne "Empty Project"
+4. Donne un nom : "polymarket-websocket"
 
-Railway offre **500h/mois gratuit** (suffisant pour 24/7).
+### Étape 2 : Déployer depuis GitHub
 
-### Option 2: Render.com
+1. Clique sur "New" → "GitHub Repo"
+2. Sélectionne ton repository `bot-polymarket`
+3. Railway va détecter le projet
 
-1. Créer un compte sur https://render.com
-2. Nouveau Web Service
-3. Connecter GitHub repo
-4. Root Directory: `websocket-service`
-5. Build Command: `npm install`
-6. Start Command: `npm start`
-7. Variables d'env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-8. Instance Type: Free
-9. Déployer !
+### Étape 3 : Configuration
 
-Render offre **750h/mois gratuit**.
+Dans les Settings du service Railway :
 
-## Test local
+**Root Directory:**
+```
+websocket-service
+```
+
+**Start Command:**
+```
+deno run --allow-net --allow-env index.ts
+```
+
+**Watch Paths:**
+```
+websocket-service/**
+```
+
+### Étape 4 : Variables d'environnement
+
+Ajoute ces variables dans Railway (Variables tab) :
 
 ```bash
-cd websocket-service
-npm install
-
-# Définir les variables d'env
-export SUPABASE_URL=http://127.0.0.1:54321
-export SUPABASE_SERVICE_ROLE_KEY=your-local-key
-
-npm start
+SUPABASE_URL=https://jjayvonibezhmdepdqgk.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=ton-service-role-key
+PORT=8000
 ```
 
-## Architecture
+**⚠️ Important** : Récupère ton `SUPABASE_SERVICE_ROLE_KEY` depuis :
+- Supabase Dashboard → Project Settings → API → service_role key
 
-```
-┌─────────────────┐
-│  Polymarket WS  │
-│  (prix temps    │
-│   réel)         │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  WS Service     │◄──── Railway/Render
-│  (Node.js 24/7) │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Supabase DB   │
-│  (positions)    │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Vercel App     │
-│  (Dashboard)    │
-└─────────────────┘
+### Étape 5 : Déployer
+
+1. Clique sur "Deploy"
+2. Attends que le déploiement soit terminé
+3. Railway va te donner une URL publique
+
+## Test du Service
+
+Une fois déployé, teste avec :
+
+```bash
+# Health check
+curl https://ton-service.up.railway.app/health
+
+# Status détaillé
+curl https://ton-service.up.railway.app/status
 ```
 
-## Logs
+## Configuration dans Vercel
 
-Le service log toutes les actions:
+Une fois le service déployé sur Railway :
 
+1. Copie l'URL publique Railway
+2. Ajoute la variable d'environnement dans Vercel :
+```bash
+vercel env add NEXT_PUBLIC_WEBSOCKET_URL production
 ```
-[WS] Starting Polymarket WebSocket Service...
-[WS] Connected to Polymarket WebSocket
-[WS] Monitoring 2 active positions
-[WS] STOP_LOSS triggered for "XRP reaches $3.60"
-[WS] Position closed: STOP_LOSS | PnL: -11.25€
-```
+3. Redéploie : `vercel --prod`
 
-## Coût
+## Vérification
 
-**100% GRATUIT** avec Railway ou Render !
+Ouvre ton dashboard Next.js → Section "Live Monitoring" devrait afficher 🟢 Connecté

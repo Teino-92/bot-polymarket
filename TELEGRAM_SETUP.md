@@ -73,7 +73,7 @@ curl http://localhost:3001/api/telegram/test
 Pour recevoir les commandes (`/status`, `/take`, etc.), configure le webhook:
 
 ```bash
-curl -X POST "https://api.telegram.org/bot<TON_TOKEN>/setWebhook?url=https://bot-polymarket-kappa.vercel.app/api/telegram/webhook"
+curl -X POST "https://api.telegram.org/bot8190369966:AAH6mMytuMj-_m1SpgBhhxm69Jvwn8DCf2M/setWebhook?url=https://bot-polymarket-kappa.vercel.app/api/telegram/webhook"
 ```
 
 Réponse attendue:
