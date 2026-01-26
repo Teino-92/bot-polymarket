@@ -23,11 +23,11 @@ export function PositionCard({ position }: PositionCardProps) {
     : 0;
 
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-sm line-clamp-2">{position.market_name}</h3>
+          <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 dark:text-white">{position.market_name}</h3>
           <div className="flex gap-2 mt-1">
             <span
               className={`text-xs px-2 py-0.5 rounded ${
@@ -56,12 +56,12 @@ export function PositionCard({ position }: PositionCardProps) {
       {/* Prices */}
       <div className="grid grid-cols-2 gap-4 mb-3 text-xs">
         <div>
-          <p className="text-gray-500">Entry</p>
-          <p className="font-mono font-semibold">{Number(position.entry_price).toFixed(3)}</p>
+          <p className="text-gray-500 dark:text-gray-400">Entry</p>
+          <p className="font-mono font-semibold text-gray-900 dark:text-white">{Number(position.entry_price).toFixed(3)}</p>
         </div>
         <div>
-          <p className="text-gray-500">Current</p>
-          <p className="font-mono font-semibold">{Number(position.current_price).toFixed(3)}</p>
+          <p className="text-gray-500 dark:text-gray-400">Current</p>
+          <p className="font-mono font-semibold text-gray-900 dark:text-white">{Number(position.current_price).toFixed(3)}</p>
         </div>
       </div>
 
@@ -69,11 +69,11 @@ export function PositionCard({ position }: PositionCardProps) {
       <div className="space-y-2 mb-3">
         {/* Stop-loss distance */}
         <div>
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
             <span>Stop-loss</span>
             <span>{Number(position.stop_loss_price).toFixed(3)}</span>
           </div>
-          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-red-500"
               style={{
@@ -86,11 +86,11 @@ export function PositionCard({ position }: PositionCardProps) {
         {/* Take-profit (si FLIP) */}
         {position.take_profit_price && (
           <div>
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
               <span>Take-profit</span>
               <span>{Number(position.take_profit_price).toFixed(3)}</span>
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-green-500"
                 style={{
@@ -103,7 +103,7 @@ export function PositionCard({ position }: PositionCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
         <span>{position.days_until_resolution}d until resolution</span>
         <span>Size: {Number(position.position_size_eur).toFixed(0)}€</span>
       </div>

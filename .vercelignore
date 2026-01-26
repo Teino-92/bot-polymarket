@@ -1,0 +1,8 @@
+supabase/functions/
+supabase/migrations/
+websocket-service/
+scripts/
+*.md
+.cursorrules
+DEPLOYMENT.md
+POLYMARKET_API_GRATUIT.md

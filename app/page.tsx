@@ -44,8 +44,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Polymarket Bot Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400">Capital: 150€ | Max positions: 2</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           </div>
           <div className="flex gap-3">
             <ThemeToggle />
@@ -53,7 +52,7 @@ export default function Dashboard() {
               href="/bot-config"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              ⚙️ Configuration
+              Configuration
             </Link>
           </div>
         </div>
@@ -135,8 +134,8 @@ export default function Dashboard() {
           {positions && positions.length > 0 ? (
             positions.map((p) => <PositionCard key={p.id} position={p} />)
           ) : (
-            <div className="col-span-2 text-center py-12 bg-gray-50 rounded-lg border">
-              <p className="text-gray-500">
+            <div className="col-span-2 text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-gray-500 dark:text-gray-400">
                 No active positions. Bot scanning for opportunities...
               </p>
             </div>

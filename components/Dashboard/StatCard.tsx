@@ -17,14 +17,14 @@ export function StatCard({ label, value, change, subtext, color = 'gray' }: Stat
   };
 
   return (
-    <div className="bg-white border rounded-lg p-4 shadow-sm">
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
       <div className="flex items-baseline gap-2">
-        <p className={`text-2xl font-bold ${colorClasses[color].split(' ')[0]}`}>{value}</p>
+        <p className={`text-2xl font-bold ${colorClasses[color].split(' ')[0]} dark:text-gray-100`}>{value}</p>
         {change !== undefined && (
           <span
             className={`text-xs font-semibold ${
-              change >= 0 ? 'text-green-600' : 'text-red-600'
+              change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}
           >
             {change >= 0 ? '+' : ''}
@@ -32,7 +32,7 @@ export function StatCard({ label, value, change, subtext, color = 'gray' }: Stat
           </span>
         )}
       </div>
-      {subtext && <p className="text-xs text-gray-500 mt-1">{subtext}</p>}
+      {subtext && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtext}</p>}
     </div>
   );
 }

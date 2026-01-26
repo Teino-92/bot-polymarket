@@ -10,9 +10,9 @@ interface PnLChartProps {
 export function PnLChart({ data }: PnLChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white border rounded-lg p-6">
-        <h3 className="text-lg font-bold mb-4">PnL Last 7 Days</h3>
-        <div className="h-[250px] flex items-center justify-center text-gray-500">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">PnL Last 7 Days</h3>
+        <div className="h-[250px] flex items-center justify-center text-gray-500 dark:text-gray-400">
           No data available
         </div>
       </div>
@@ -20,8 +20,8 @@ export function PnLChart({ data }: PnLChartProps) {
   }
 
   return (
-    <div className="bg-white border rounded-lg p-6">
-      <h3 className="text-lg font-bold mb-4">PnL Last 7 Days</h3>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">PnL Last 7 Days</h3>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
