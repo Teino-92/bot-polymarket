@@ -22,7 +22,7 @@ export default function Dashboard() {
     refreshInterval: 30000, // 30s
   });
 
-  const { data: positions } = useSWR<Position[]>('/api/positions', fetcher, {
+  const { data: positions, mutate: mutatePositions } = useSWR<Position[]>('/api/positions', fetcher, {
     refreshInterval: 10000, // 10s
   });
 
@@ -132,7 +132,7 @@ export default function Dashboard() {
         </h2>
         <div className="grid grid-cols-2 gap-4">
           {positions && positions.length > 0 ? (
-            positions.map((p) => <PositionCard key={p.id} position={p} />)
+            positions.map((p) => <PositionCard key={p.id} position={p} onClose={() => mutatePositions()} />)
           ) : (
             <div className="col-span-2 text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-gray-500 dark:text-gray-400">

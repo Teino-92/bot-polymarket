@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import type { Position } from '@/lib/types';
 
 interface PositionCardProps {
   position: Position;
+  onClose?: () => void;
 }
 
-export function PositionCard({ position }: PositionCardProps) {
+export function PositionCard({ position, onClose }: PositionCardProps) {
+  const [isClosing, setIsClosing] = useState(false);
   const pnlPercent = ((Number(position.current_price) - Number(position.entry_price)) / Number(position.entry_price)) * 100;
   const isProfitable = Number(position.unrealized_pnl_eur) >= 0;
 
@@ -103,10 +106,44 @@ export function PositionCard({ position }: PositionCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
         <span>{position.days_until_resolution}d until resolution</span>
         <span>Size: {Number(position.position_size_eur).toFixed(0)}€</span>
       </div>
+
+      {/* Close Button */}
+      <button
+        onClick={async () => {
+          if (isClosing) return;
+          if (!confirm('Êtes-vous sûr de vouloir fermer cette position manuellement ?')) return;
+
+          setIsClosing(true);
+          try {
+            const response = await fetch(`/api/positions/${position.id}/close`, {
+              method: 'POST',
+            });
+
+            if (response.ok) {
+              onClose?.();
+            } else {
+              const error = await response.json();
+              alert(`Erreur: ${error.error || 'Impossible de fermer la position'}`);
+            }
+          } catch (error) {
+            alert('Erreur réseau');
+          } finally {
+            setIsClosing(false);
+          }
+        }}
+        disabled={isClosing}
+        className={`w-full py-2 rounded-lg font-semibold text-sm transition-all ${
+          isClosing
+            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+            : 'bg-red-600 hover:bg-red-700 text-white active:scale-95'
+        }`}
+      >
+        {isClosing ? 'Fermeture...' : '🔴 Fermer la position'}
+      </button>
     </div>
   );
 }
