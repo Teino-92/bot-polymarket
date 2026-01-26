@@ -3,7 +3,7 @@
  * Permet de contrôler le bot via messages Telegram
  */
 
-import { supabaseAdmin } from '../supabase/client';
+import { supabaseAdmin } from '@/lib/supabase';
 
 interface PendingDecision {
   id: string;
