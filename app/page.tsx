@@ -39,35 +39,50 @@ export default function Dashboard() {
 
   // Handlers pour les contrôles manuels
   const handleScan = async () => {
-    const response = await fetch('/api/bot/scan', { method: 'POST' });
-    const result = await response.json();
-    if (result.success) {
-      // Rafraîchir les données
-      mutateConfig();
+    try {
+      const response = await fetch('/api/bot/scan', { method: 'POST' });
+      const result = await response.json();
+      if (result.success) {
+        // Rafraîchir les données
+        mutateConfig();
+      }
+      return result;
+    } catch (error) {
+      console.error('Scan error:', error);
+      return { success: false, error: String(error) };
     }
-    return result;
   };
 
   const handleTogglePause = async () => {
-    const response = await fetch('/api/bot/config/pause', { method: 'POST' });
-    const result = await response.json();
-    if (result.success) {
-      mutateConfig();
+    try {
+      const response = await fetch('/api/bot/config/pause', { method: 'POST' });
+      const result = await response.json();
+      if (result.success) {
+        mutateConfig();
+      }
+      return result;
+    } catch (error) {
+      console.error('Toggle pause error:', error);
+      return { success: false, error: String(error) };
     }
-    return result;
   };
 
   const handleUpdateConfig = async (updates: any) => {
-    const response = await fetch('/api/bot/config', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    });
-    const result = await response.json();
-    if (result.success) {
-      mutateConfig();
+    try {
+      const response = await fetch('/api/bot/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const result = await response.json();
+      if (result.success) {
+        mutateConfig();
+      }
+      return result;
+    } catch (error) {
+      console.error('Update config error:', error);
+      return { success: false, error: String(error) };
     }
-    return result;
   };
 
   return (
