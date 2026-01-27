@@ -1,15 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWalletOwnership, createWalletSession } from '@/lib/auth';
+import { generateNonce, verifySignature } from '@/lib/crypto-auth';
 
-export async function POST(request: NextRequest) {
+// Store nonces temporarily (in production, use Redis or similar)
+const nonceStore = new Map<string, { nonce: string; timestamp: number }>();
+
+// Cleanup old nonces every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [address, data] of nonceStore.entries()) {
+    if (now - data.timestamp > 5 * 60 * 1000) {
+      nonceStore.delete(address);
+    }
+  }
+}, 5 * 60 * 1000);
+
+// Step 1: Get a nonce to sign
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { address } = body;
+    const { searchParams } = new URL(request.url);
+    const address = searchParams.get('address');
 
     if (!address) {
       return NextResponse.json(
-        { error: 'Wallet address is required' },
+        { error: 'Address is required' },
         { status: 400 }
+      );
+    }
+
+    // Generate a unique nonce
+    const nonce = generateNonce();
+    nonceStore.set(address.toLowerCase(), {
+      nonce,
+      timestamp: Date.now(),
+    });
+
+    return NextResponse.json({ nonce });
+  } catch (error) {
+    console.error('Nonce generation error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Step 2: Verify signature and create session
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { address, signature } = body;
+
+    console.log('🔍 POST /api/auth/wallet - Received:');
+    console.log('Address:', address);
+    console.log('Address (lowercase):', address?.toLowerCase());
+    console.log('Signature:', signature);
+    console.log('Authorized wallet from env:', process.env.AUTHORIZED_WALLET_ADDRESS);
+
+    if (!address || !signature) {
+      return NextResponse.json(
+        { error: 'Address and signature are required' },
+        { status: 400 }
+      );
+    }
+
+    // Get the nonce for this address
+    const storedData = nonceStore.get(address.toLowerCase());
+    console.log('Stored nonce data:', storedData);
+    if (!storedData) {
+      return NextResponse.json(
+        { error: 'No nonce found. Please request a new nonce.' },
+        { status: 400 }
+      );
+    }
+
+    // Check if nonce is expired (5 minutes)
+    if (Date.now() - storedData.timestamp > 5 * 60 * 1000) {
+      nonceStore.delete(address.toLowerCase());
+      return NextResponse.json(
+        { error: 'Nonce expired. Please request a new nonce.' },
+        { status: 400 }
+      );
+    }
+
+    // Verify the signature
+    const isValidSignature = await verifySignature(
+      address,
+      signature,
+      storedData.nonce
+    );
+
+    if (!isValidSignature) {
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 403 }
       );
     }
 
@@ -18,10 +102,13 @@ export async function POST(request: NextRequest) {
 
     if (!isAuthorized) {
       return NextResponse.json(
-        { error: 'Unauthorized wallet address' },
+        { error: 'Unauthorized wallet address. Only the bot owner can access this dashboard.' },
         { status: 403 }
       );
     }
+
+    // Clean up used nonce
+    nonceStore.delete(address.toLowerCase());
 
     // Create session
     const session = createWalletSession(address);
@@ -58,29 +145,4 @@ export async function DELETE(request: NextRequest) {
   response.cookies.delete('wallet_session');
 
   return response;
-}
-
-// Check auth status
-export async function GET(request: NextRequest) {
-  const sessionCookie = request.cookies.get('wallet_session')?.value;
-
-  if (!sessionCookie) {
-    return NextResponse.json({ authenticated: false });
-  }
-
-  try {
-    const session = JSON.parse(sessionCookie);
-    const sessionAge = Date.now() - session.timestamp;
-
-    if (sessionAge > 24 * 60 * 60 * 1000) {
-      return NextResponse.json({ authenticated: false, reason: 'Session expired' });
-    }
-
-    return NextResponse.json({
-      authenticated: true,
-      address: session.address,
-    });
-  } catch (e) {
-    return NextResponse.json({ authenticated: false, reason: 'Invalid session' });
-  }
 }
