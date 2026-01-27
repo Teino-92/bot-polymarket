@@ -1,44 +1,288 @@
 # 🤖 Polymarket Trading Bot
 
-Bot de trading automatisé pour Polymarket avec dashboard de monitoring en temps réel. Optimisé pour farmer l'airdrop Polymarket tout en générant des profits.
+Bot de trading automatisé pour Polymarket avec dashboard de monitoring en temps réel. Authentification sécurisée par wallet et interface PWA mobile-friendly.
+
+![Dashboard](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) ![Mode](https://img.shields.io/badge/Mode-Simulation-blue) ![Security](https://img.shields.io/badge/Auth-Wallet%20Signature-orange)
 
 ## 📊 Vue d'ensemble
 
-- **Capital initial**: 150€ sur wallet Polygon
-- **Stratégie**: Market making intelligent avec décision automatique Hold vs Flip
-- **Objectif principal**: Maximiser volume + fréquence de trades (airdrop farming)
-- **Objectif secondaire**: Profit target 5-15€/mois
-- **Positions simultanées**: Maximum 1-2 marchés actifs
+- **Authentification**: Signature cryptographique avec votre wallet Polygon (aucun mot de passe)
+- **Capital**: Gérez votre capital de trading sur Polygon
+- **Stratégie**: Market making intelligent (HOLD vs FLIP)
+- **Dashboard**: Interface web temps réel avec dark mode
+- **Mobile**: PWA installable, fonctionne hors ligne
 
-## 🎯 Caractéristiques
+---
 
-### Stratégies de trading automatiques
+## 🚀 Installation Rapide (5 minutes)
 
-1. **HOLD Strategy**: Maintenir la position jusqu'à résolution du marché
-   - Basée sur le Hold Value Score (HVS)
-   - Pour les marchés avec forte conviction
+### 1️⃣ Cloner et installer
 
-2. **FLIP Strategy**: Market making rapide (acheter/vendre)
-   - Basée sur le Flip Expected Value (FlipEV)
-   - Maximise le volume pour l'airdrop
+```bash
+git clone https://github.com/votre-repo/bot-polymarket
+cd bot-polymarket
+npm install
+```
 
-3. **SKIP**: Rejeter les opportunités non rentables
+### 2️⃣ Configurer Supabase
+
+1. Créer un compte sur [supabase.com](https://supabase.com)
+2. Créer un nouveau projet
+3. Dans **SQL Editor**, exécuter les migrations dans l'ordre:
+   - `supabase/migrations/001_trades.sql`
+   - `supabase/migrations/002_positions.sql`
+   - `supabase/migrations/003_market_scan.sql`
+   - `supabase/migrations/004_bot_config.sql`
+
+### 3️⃣ Variables d'environnement
+
+Créer `.env.local`:
+
+```bash
+# Supabase (obligatoire)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Wallet autorisé (votre adresse Polygon)
+AUTHORIZED_WALLET_ADDRESS=0x...
+
+# Mode simulation (recommandé au début)
+SIMULATION_MODE=true
+
+# WebSocket Railway (optionnel)
+NEXT_PUBLIC_WEBSOCKET_URL=wss://your-service.railway.app
+
+# Telegram (optionnel)
+TELEGRAM_BOT_TOKEN=123456:ABC...
+TELEGRAM_CHAT_ID=123456789
+```
+
+### 4️⃣ Démarrer
+
+```bash
+npm run dev
+```
+
+Ouvrir **http://localhost:3000/login** et connecter votre wallet!
+
+---
+
+## 🔐 Authentification par Wallet
+
+### Comment ça marche
+
+1. **Pas de mot de passe** - Utilisez votre wallet Polygon (MetaMask, Rabby, etc.)
+2. **Signature cryptographique** - Vous signez un message pour prouver que vous possédez le wallet
+3. **Aucun gas fee** - Signature hors-chaîne, aucune transaction blockchain
+4. **Session 24h** - Reste connecté pendant 24 heures
+
+### Première connexion
+
+1. Aller sur `/login`
+2. Cliquer "Connect Wallet"
+3. Signer le message dans votre wallet
+4. Accès au dashboard si vous êtes le wallet autorisé
+
+### Sécurité
+
+- ✅ Seul le wallet dans `AUTHORIZED_WALLET_ADDRESS` peut se connecter
+- ✅ Session sécurisée avec cookies HttpOnly
+- ✅ Protection CSRF avec nonce unique
+- ✅ Vérification de signature côté serveur (viem)
+
+---
+
+## 📱 Déploiement
+
+### Option 1: Vercel (Recommandé)
+
+```bash
+# Installer Vercel CLI
+npm i -g vercel
+
+# Se connecter
+vercel login
+
+# Déployer
+vercel --prod
+
+# Configurer les variables d'environnement
+# Vercel Dashboard → Settings → Environment Variables
+```
+
+**Important**: Ajouter toutes les variables de `.env.local` dans Vercel.
+
+### Option 2: Railway (WebSocket inclus)
+
+Railway est recommandé si vous voulez le service WebSocket.
+
+```bash
+# Installer Railway CLI
+npm i -g @railway/cli
+
+# Se connecter
+railway login
+
+# Déployer
+railway up
+
+# Configurer les variables
+# Railway Dashboard → Variables
+```
+
+### Configuration du WebSocket (Railway)
+
+Le WebSocket permet le monitoring temps réel des positions:
+
+1. **Créer un nouveau service Railway** pour le WebSocket:
+   ```bash
+   cd websocket-service
+   railway up
+   ```
+
+2. **Récupérer l'URL**:
+   ```
+   wss://your-service.railway.app
+   ```
+
+3. **Ajouter à `.env.local`**:
+   ```bash
+   NEXT_PUBLIC_WEBSOCKET_URL=wss://your-service.railway.app
+   ```
+
+---
+
+## 🤖 Configuration Telegram (Optionnel)
+
+Recevez des notifications sur vos trades!
+
+### 1. Créer un bot Telegram
+
+1. Parler à [@BotFather](https://t.me/botfather)
+2. Envoyer `/newbot`
+3. Suivre les instructions
+4. Récupérer le **token**
+
+### 2. Obtenir votre Chat ID
+
+1. Parler à [@userinfobot](https://t.me/userinfobot)
+2. Récupérer votre **ID**
+
+### 3. Configurer
+
+```bash
+TELEGRAM_BOT_TOKEN=123456:ABC-def1234ghIkl-zyx57W2v1u123ew11
+TELEGRAM_CHAT_ID=123456789
+```
+
+### 4. Tester
+
+```bash
+curl -X POST http://localhost:3000/api/telegram/test
+```
+
+Vous devriez recevoir un message "Bot Telegram configuré ✅"!
+
+---
+
+## 🎯 Fonctionnalités
+
+### Dashboard
+
+- **Stats globales**: PnL total, positions actives, win rate, volume
+- **Positions actives**: Prix entry/current, PnL, stop-loss/take-profit
+- **Opportunités**: Top 5 marchés analysés avec scores
+- **Graphiques**: Performance 7/30 jours
+- **Dark mode**: Toggle automatique
+
+### Stratégies de trading
+
+**HOLD Strategy**: Maintenir jusqu'à résolution
+- Score: Hold Value Score (HVS)
+- Pour marchés avec forte conviction
+
+**FLIP Strategy**: Market making rapide
+- Score: Flip Expected Value (FlipEV)
+- Maximise le volume (airdrop farming)
+
+**SKIP**: Rejeter les opportunités non rentables
 
 ### Risk Management
 
-- Position sizing automatique (max 75€ par position)
-- Stop-loss à -15%
-- Take-profit à +8% (stratégie FLIP uniquement)
-- Cooldown de 2h entre trades sur le même marché
-- Exposition maximale 90% du capital
+- Position max: 75€ par position
+- Stop-loss: -15%
+- Take-profit: +8% (FLIP)
+- Cooldown: 2h entre trades
+- Exposition max: 90% du capital
 
-### Dashboard temps réel
+---
 
-- PnL total (réalisé + non réalisé)
-- Positions actives avec progression stop-loss/take-profit
-- Top opportunités avec scores HVS/FlipEV
-- Graphique performance 7 jours
-- Métriques airdrop (volume, nombre de trades)
+## 🎮 Mode Simulation vs Réel
+
+### Mode Simulation (par défaut)
+
+```bash
+SIMULATION_MODE=true
+```
+
+- ✅ Toutes les analyses fonctionnent
+- ✅ Dashboard pleinement fonctionnel
+- ✅ Positions enregistrées en DB
+- ❌ **AUCUN ordre réel** sur Polymarket
+- ❌ **AUCUNE transaction** blockchain
+
+**Parfait pour**: Tester le bot sans risque
+
+### Mode Réel (DANGER)
+
+```bash
+SIMULATION_MODE=false
+```
+
+⚠️ **Checklist obligatoire avant activation**:
+
+- [ ] Testé en simulation pendant 7+ jours
+- [ ] Formules HVS/FlipEV validées
+- [ ] Risk management vérifié
+- [ ] Wallet Polygon avec capital exact
+- [ ] Private key stockée de manière sécurisée
+- [ ] Monitoring actif prévu
+
+---
+
+## 📐 Calculateurs
+
+### Hold Value Score (HVS)
+
+Détermine si tenir une position est rentable:
+
+```
+HVS = (Expected Profit × Win Probability)
+    - (Max Loss × Loss Probability)
+    - (Opportunity Cost)
+    - (Long Term Penalty)
+```
+
+**Seuil**: HVS > 5€ → HOLD recommandé
+
+### Flip Expected Value (FlipEV)
+
+Calcule le profit attendu en market making:
+
+```
+FlipEV = (Spread × Size × Fill Probability) × (Flips/Week × Weeks)
+```
+
+**Seuil**: FlipEV > 3€ → FLIP recommandé
+
+### Tester les calculateurs
+
+```bash
+npm run test:calculators
+```
+
+---
 
 ## 🏗️ Architecture
 
@@ -46,15 +290,19 @@ Bot de trading automatisé pour Polymarket avec dashboard de monitoring en temps
 bot-polymarket/
 ├── app/
 │   ├── page.tsx                    # Dashboard principal
-│   ├── api/
-│   │   ├── overview/route.ts       # Stats globales
-│   │   ├── positions/route.ts      # Positions actives
-│   │   ├── history/route.ts        # Historique trades
-│   │   ├── opportunities/route.ts  # Top marchés
-│   │   └── bot/
-│   │       ├── execute/route.ts    # Exécution bot
-│   │       └── analyze/route.ts    # Analyse marchés
-│   └── layout.tsx
+│   ├── login/page.tsx              # Authentification wallet
+│   ├── bot-config/page.tsx         # Configuration bot
+│   ├── calculators/page.tsx        # Outils de calcul
+│   └── api/
+│       ├── auth/wallet/route.ts    # Auth signature
+│       ├── overview/route.ts       # Stats globales
+│       ├── positions/route.ts      # Positions actives
+│       ├── history/route.ts        # Historique
+│       ├── opportunities/route.ts  # Top marchés
+│       └── bot/
+│           ├── execute/route.ts    # Exécution bot
+│           ├── scan/route.ts       # Scan marchés
+│           └── config/route.ts     # Config dynamique
 ├── components/
 │   └── Dashboard/
 │       ├── PositionCard.tsx
@@ -62,260 +310,28 @@ bot-polymarket/
 │       ├── StatCard.tsx
 │       └── PnLChart.tsx
 ├── lib/
-│   ├── types.ts                    # TypeScript types
-│   ├── config.ts                   # Configuration bot
-│   ├── supabase.ts                 # Client Supabase
+│   ├── auth.ts                     # Gestion auth
+│   ├── crypto-auth.ts              # Signature vérification
+│   ├── supabase.ts                 # Client DB
 │   ├── calculators/
-│   │   ├── hvs-calculator.ts       # Hold Value Score
-│   │   └── flip-ev-calculator.ts   # Flip Expected Value
+│   │   ├── hvs-calculator.ts       # HVS
+│   │   └── flip-ev-calculator.ts   # FlipEV
 │   └── polymarket/
-│       ├── client.ts               # API client (simulation mode)
-│       ├── strategy.ts             # Logique décision HOLD/FLIP/SKIP
-│       ├── market-selector.ts      # Scanner de marchés
-│       └── risk-manager.ts         # Gestion des risques
-├── supabase/
-│   ├── migrations/
-│   │   ├── 001_trades.sql
-│   │   ├── 002_positions.sql
-│   │   ├── 003_market_scan.sql
-│   │   └── 004_bot_config.sql
-│   └── functions/
-│       └── bot-execute/index.ts    # Cron function
-└── README.md
+│       ├── client.ts               # API wrapper
+│       ├── strategy.ts             # Décisions
+│       ├── market-selector.ts      # Filtres
+│       └── risk-manager.ts         # Risk management
+└── supabase/
+    └── migrations/                 # SQL migrations
 ```
 
-## 📐 Formules décisionnelles
+---
 
-### 1. Hold Value Score (HVS)
+## 🔧 Configuration Avancée
 
-Détermine si tenir une position jusqu'à résolution est profitable.
+### Paramètres du bot
 
-```typescript
-HVS = (Expected Profit × Win Probability)
-    - (Max Loss × Loss Probability)
-    - (Opportunity Cost)
-    - (Long Term Penalty)
-```
-
-**Exemple**:
-```
-Entry: 0.43 YES
-Size: 75€
-Win Probability: 0.55
-Days: 65
-
-→ HVS = -4.50€ (PAS rentable de hold)
-```
-
-### 2. Flip Expected Value (FlipEV)
-
-Calcule le profit attendu en faisant du market making.
-
-```typescript
-FlipEV = (Profit per Flip) × (Total Flips)
-
-Où:
-- Profit per Flip = Spread × Position Size × Fill Probability
-- Total Flips = Flips per Week × Weeks Available
-```
-
-**Exemple**:
-```
-Spread: 4%
-Size: 75€
-Fill Probability: 0.70
-Flips/Week: 2
-Days: 65
-
-→ FlipEV = 37.80€ (Très rentable de flip!)
-```
-
-### 3. Décision finale
-
-```typescript
-if (HVS >= 5€ AND HVS > FlipEV × 1.3)
-  → HOLD
-
-else if (FlipEV >= 3€ AND Spread >= 3% AND Days >= 3)
-  → FLIP
-
-else
-  → SKIP
-```
-
-## 🚀 Installation
-
-### 1. Prérequis
-
-- Node.js 18+
-- Compte Supabase
-- Wallet Polygon avec 150€
-- (Optionnel) Clé API Polymarket
-
-### 2. Cloner le projet
-
-```bash
-git clone <repo-url>
-cd bot-polymarket
-npm install
-```
-
-### 3. Configuration Supabase
-
-1. Créer un nouveau projet sur [supabase.com](https://supabase.com)
-2. Exécuter les migrations SQL dans l'ordre:
-   - `supabase/migrations/001_trades.sql`
-   - `supabase/migrations/002_positions.sql`
-   - `supabase/migrations/003_market_scan.sql`
-   - `supabase/migrations/004_bot_config.sql`
-
-3. Configurer le cron job (Supabase Dashboard → Database → Cron Jobs):
-   ```
-   Schedule: 0 */4 * * *  (toutes les 4 heures)
-   Function: bot-execute
-   ```
-
-### 4. Variables d'environnement
-
-```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-# Wallet Polygon (STOCKER DANS SUPABASE VAULT EN PRODUCTION!)
-WALLET_PRIVATE_KEY=0x...
-
-# Polymarket
-POLYMARKET_API_KEY=xxx
-POLYMARKET_CLOB_URL=https://clob.polymarket.com
-
-# Mode (TOUJOURS démarrer en simulation!)
-SIMULATION_MODE=true
-```
-
-### 5. Démarrer le projet
-
-```bash
-# Mode développement
-npm run dev
-
-# Build production
-npm run build
-npm start
-```
-
-Dashboard accessible sur: `http://localhost:3000`
-
-## 🎮 Mode Simulation
-
-**CRITICAL**: Le bot démarre TOUJOURS en mode simulation par défaut.
-
-### En mode simulation
-
-- ✅ Toutes les analyses fonctionnent (HVS, FlipEV, scanning)
-- ✅ Positions sont enregistrées en DB
-- ✅ Dashboard affiche les données
-- ❌ AUCUN ordre réel placé sur Polymarket
-- ❌ AUCUNE transaction blockchain
-
-### Logs simulation
-
-```
-🎮 [SIMULATION] Would place order:
-   Market: Will Apple announce AR glasses...
-   Side: YES
-   Price: 0.38
-   Size: 75€
-
-Order ID: sim-1738000920123
-TX Hash: 0xsimulated8a7f2b3
-```
-
-## 🔴 Passer en mode REAL (DANGER)
-
-### Safety checklist OBLIGATOIRE
-
-Avant de passer `SIMULATION_MODE=false`:
-
-1. [ ] Tester le bot en simulation pendant au moins 7 jours
-2. [ ] Vérifier que les formules HVS/FlipEV donnent des résultats cohérents
-3. [ ] Confirmer que le risk management fonctionne (stop-loss, take-profit)
-4. [ ] Wallet Polygon contient exactement 150€ (pas plus!)
-5. [ ] Private key stockée dans Supabase Vault (PAS .env.local!)
-6. [ ] Commencer avec `maxPositions: 1` au lieu de 2
-7. [ ] Monitorer la première position manuellement
-
-### Activation mode réel
-
-```bash
-# Dans .env
-SIMULATION_MODE=false
-```
-
-### Surveillance post-activation
-
-- Vérifier le dashboard toutes les 4 heures (à chaque exécution cron)
-- Surveiller les transactions Polygon: https://polygonscan.com
-- Vérifier solde wallet régulièrement
-- Si problème: `SIMULATION_MODE=true` immédiatement
-
-## 📊 Utilisation
-
-### Déclencher une analyse manuelle
-
-```bash
-curl -X POST http://localhost:3000/api/bot/analyze
-```
-
-### Déclencher une exécution manuelle
-
-```bash
-curl -X POST http://localhost:3000/api/bot/execute
-```
-
-### Voir les positions actives
-
-```
-GET /api/positions
-```
-
-### Voir l'historique
-
-```
-GET /api/history?limit=50
-```
-
-## 🧪 Tester les calculateurs
-
-Les calculateurs incluent des tests intégrés:
-
-```bash
-# Tester HVS Calculator
-ts-node lib/calculators/hvs-calculator.ts
-
-# Tester FlipEV Calculator
-ts-node lib/calculators/flip-ev-calculator.ts
-```
-
-Output attendu:
-```
-🧮 Testing HVS Calculator
-
-Example 1 (Should be unprofitable):
-  Entry: 0.43, Size: 75€, Win Prob: 0.55, Days: 65
-  → HVS: -4.50€
-  → Recommendation: SKIP/FLIP ❌
-
-Example 2 (Should be profitable):
-  Entry: 0.25, Size: 75€, Win Prob: 0.70, Days: 20
-  → HVS: 28.75€
-  → Recommendation: HOLD ✅
-```
-
-## ⚙️ Configuration avancée
-
-Tous les paramètres sont dans `lib/config.ts`:
+Fichier `lib/config.ts`:
 
 ```typescript
 export const BOT_CONFIG = {
@@ -325,7 +341,7 @@ export const BOT_CONFIG = {
   maxPositionSizeEur: 75,
   maxTotalExposure: 0.90,
 
-  // Thresholds
+  // Thresholds décision
   minHVSForHold: 5,        // € minimum pour HOLD
   minFlipEV: 3,            // € minimum pour FLIP
 
@@ -334,7 +350,7 @@ export const BOT_CONFIG = {
   takeProfitPercent: 0.08, // 8%
   cooldownMinutes: 120,    // 2h
 
-  // Market filters
+  // Filtres marchés
   marketFilters: {
     minLiquidityUsd: 10000,
     minSpread: 0.03,
@@ -347,124 +363,170 @@ export const BOT_CONFIG = {
 };
 ```
 
-## 📈 Exemple de workflow complet
+### Base de données (Supabase)
 
-1. **Cron se déclenche** (toutes les 4h)
-   ```
-   [12:00] Bot execution started
-   [12:00] Active positions: 1/2
-   ```
+**Tables créées**:
+- `trades` - Historique complet des trades
+- `positions` - Positions actives
+- `market_scan` - Résultats des scans
+- `bot_config` - Configuration dynamique
 
-2. **Monitoring positions**
-   ```
-   Position #1: "Apple VR headset"
-   Entry: 0.38, Current: 0.42 (+10.5%)
-   Take-profit: 0.410 ✅ TRIGGERED
-   → Closing position... PnL: +7.88€
-   ```
+**Accès**: Supabase Dashboard → Table Editor
 
-3. **Scan marchés**
-   ```
-   [12:01] Fetching top 100 markets...
-   [12:01] Found 23 viable markets
-   ```
-
-4. **Analyse top opportunité**
-   ```
-   Market: "Will Apple announce VR headset..."
-   Entry: 0.38 YES
-   Spread: 5.2%
-   HVS: 3.2€ ❌
-   FlipEV: 18.5€ ✅
-   → RECOMMENDATION: FLIP
-   ```
-
-5. **Risk checks**
-   ```
-   ✅ Active positions: 1 < 2
-   ✅ Total exposure: 75€ < 135€
-   ✅ No cooldown active
-   ```
-
-6. **Placement ordre**
-   ```
-   [SIMULATION] Placing order:
-   Market: "Apple VR headset"
-   Side: YES, Price: 0.38, Size: 75€
-   Stop-loss: 0.323, Take-profit: 0.410
-
-   ✅ Position opened
-   ```
-
-## 🔒 Sécurité
-
-### CRITICAL: Private Key
-
-**JAMAIS** commit la private key dans git:
-
-```bash
-# .gitignore contient déjà:
-.env
-```
-
-En production, stocker dans Supabase Vault:
-```sql
--- Supabase Dashboard → Settings → Vault
-INSERT INTO vault.secrets (name, secret)
-VALUES ('wallet_private_key', '0x...');
-```
-
-### Mode simulation par défaut
-
-Le bot refuse de démarrer en mode réel sans confirmation explicite:
-
-```typescript
-if (this.simulationMode) {
-  console.log('🎮 [POLYMARKET] Running in SIMULATION mode');
-} else {
-  console.log('⚠️  [POLYMARKET] Running in REAL TRADING mode');
-}
-```
+---
 
 ## 🐛 Troubleshooting
 
-### Le bot ne trouve aucune opportunité
+### Erreur "Invalid signature"
 
-- Vérifier `marketFilters` dans `config.ts` (peut-être trop restrictifs)
-- En mode simulation, seulement 6 marchés mockés disponibles
-- Vérifier les logs: `npm run dev` et regarder console
+**Cause**: Message signé différent de celui vérifié
 
-### Erreur "Max positions reached"
+**Solution**:
+1. Vider le cache du navigateur
+2. Tester en mode incognito
+3. Vérifier que `AUTHORIZED_WALLET_ADDRESS` correspond à votre wallet
 
-- Normal si 2 positions actives
-- Attendre qu'une position se ferme (stop-loss ou take-profit)
-- Ou fermer manuellement une position dans Supabase
+### Dashboard affiche "Unauthorized"
 
-### Dashboard affiche "No data"
+**Cause**: Vous n'êtes pas connecté ou session expirée
 
-- Lancer une analyse: `POST /api/bot/analyze`
-- Vérifier connexion Supabase (clés dans `.env.local`)
-- Vérifier migrations SQL exécutées
+**Solution**:
+1. Aller sur `/login`
+2. Reconnecter votre wallet
+3. Vérifier `AUTHORIZED_WALLET_ADDRESS` dans `.env.local`
 
-### Calculs HVS/FlipEV semblent incorrects
+### WebSocket déconnecté
 
-- Tester les calculateurs: `ts-node lib/calculators/hvs-calculator.ts`
-- Vérifier paramètres dans `config.ts`
-- Comparer avec exemples dans cette doc
+**Cause**: Service Railway non déployé ou URL incorrecte
 
-## 🚧 Améliorations futures (hors scope v1)
+**Solution**:
+1. Vérifier `NEXT_PUBLIC_WEBSOCKET_URL` dans `.env.local`
+2. Vérifier que le service Railway est actif
+3. Tester l'URL: `wscat -c wss://your-service.railway.app`
 
-- [ ] WebSocket Polymarket pour prix temps réel
-- [ ] Multi-wallet support (diversifier airdrop)
-- [ ] Machine learning pour win probability
-- [ ] Auto-rebalance entre marchés corrélés
-- [ ] Telegram alerts
-- [ ] Backtesting historique
+### "No opportunities found"
+
+**Cause**: Mode simulation utilise marchés mockés
+
+**Solution**: Normal en simulation (6 marchés test uniquement)
+
+### Telegram ne reçoit rien
+
+**Cause**: Token ou Chat ID incorrect
+
+**Solution**:
+1. Vérifier le token avec BotFather
+2. Vérifier le Chat ID avec userinfobot
+3. Tester: `POST /api/telegram/test`
+
+---
+
+## 📊 API Endpoints
+
+### Publics (nécessitent authentification)
+
+```bash
+# Stats globales
+GET /api/overview
+
+# Positions actives
+GET /api/positions
+
+# Historique des trades
+GET /api/history?limit=50
+
+# Top opportunités
+GET /api/opportunities
+
+# Configuration bot
+GET /api/bot/config
+POST /api/bot/config
+```
+
+### Protégés (admin)
+
+```bash
+# Scan marchés
+POST /api/bot/scan
+
+# Analyse marchés
+POST /api/bot/analyze
+
+# Exécuter bot
+POST /api/bot/execute
+
+# Fermer position
+POST /api/positions/[id]/close
+```
+
+---
+
+## 🚦 Commandes Utiles
+
+```bash
+# Développement
+npm run dev                  # Démarrer dev server
+
+# Tests
+npm run test:calculators     # Tester HVS & FlipEV
+
+# Production
+npm run build                # Build production
+npm start                    # Démarrer en production
+
+# Déploiement
+vercel --prod                # Déployer sur Vercel
+railway up                   # Déployer sur Railway
+```
+
+---
+
+## 🔒 Sécurité
+
+### ✅ Protections en place
+
+- **Authentification wallet** - Signature cryptographique SIWE
+- **Session sécurisée** - Cookies HttpOnly, 24h expiration
+- **Middleware protection** - Toutes les routes protégées sauf `/login`
+- **Variables sensibles** - Jamais committées (`.gitignore`)
+- **Mode simulation** - Par défaut, aucun ordre réel
+- **Rate limiting** - Cooldown entre trades
+
+### ⚠️ Bonnes pratiques
+
+1. **Jamais commit** les private keys
+2. **Utiliser** le mode simulation d'abord
+3. **Tester** pendant 7+ jours avant mode réel
+4. **Monitorer** activement les premières semaines
+5. **Backup** Supabase régulièrement
+
+---
+
+## 📚 Ressources
+
+- [Polymarket Docs](https://docs.polymarket.com)
+- [Supabase Docs](https://supabase.com/docs)
+- [Vercel Docs](https://vercel.com/docs)
+- [Railway Docs](https://docs.railway.app)
+- [Next.js Docs](https://nextjs.org/docs)
+- [Viem Docs](https://viem.sh)
+
+---
 
 ## 📝 License
 
 MIT
 
+---
+
 ## ⚠️ Disclaimer
 
-Ce bot est fourni à titre éducatif. Trading de marchés prédictifs comporte des risques. Utilisez à vos propres risques. Toujours démarrer en mode SIMULATION.
+Ce bot est fourni à titre éducatif. Le trading de marchés prédictifs comporte des risques. Utilisez à vos propres risques. Toujours démarrer en mode SIMULATION.
+
+---
+
+## 🎉 Support
+
+Des questions? Ouvrez une issue sur GitHub!
+
+**Happy Trading! 🚀**
