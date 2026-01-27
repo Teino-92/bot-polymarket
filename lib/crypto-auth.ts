@@ -15,7 +15,6 @@ export function generateSignMessage(address: string, nonce: string): string {
 
 Address: ${address}
 Nonce: ${nonce}
-Timestamp: ${new Date().toISOString()}
 
 This signature will not trigger any blockchain transaction or cost any gas fees.`;
 }
