@@ -8,13 +8,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    // Récupérer les derniers scans (dernière heure)
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    // Récupérer les derniers scans (dernières 24 heures)
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const { data: scans, error } = await supabaseAdmin
       .from('market_scan')
       .select('*')
-      .gte('scanned_at', oneHourAgo)
+      .gte('scanned_at', oneDayAgo)
       .order('flip_ev', { ascending: false })
       .limit(limit);
 

@@ -25,7 +25,7 @@ export default function Dashboard() {
     refreshInterval: 30000, // 30s
   });
 
-  const { data: positions, mutate: mutatePositions } = useSWR<Position[]>('/api/positions', fetcher, {
+  const { data: allPositions, mutate: mutatePositions } = useSWR<Position[]>('/api/positions', fetcher, {
     refreshInterval: 10000, // 10s
   });
 
@@ -40,6 +40,9 @@ export default function Dashboard() {
   const { data: config } = useSWR<any>('/api/bot/config', fetcher, {
     refreshInterval: 10000, // 10s
   });
+
+  // Filter only OPEN positions
+  const positions = allPositions?.filter(p => p.status === 'OPEN') || [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -85,7 +88,7 @@ export default function Dashboard() {
           />
           <StatCard
             label="Active Positions"
-            value={positions?.length || 0}
+            value={positions.length}
             subtext="Max: 2"
             color="blue"
           />
@@ -147,10 +150,10 @@ export default function Dashboard() {
       {isVisible('activePositions') && (
         <div className="mb-6 sm:mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-            Active Positions ({positions?.length || 0}/2)
+            Active Positions ({positions.length}/2)
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-            {positions && positions.length > 0 ? (
+            {positions.length > 0 ? (
               positions.map((p) => <PositionCard key={p.id} position={p} onClose={() => mutatePositions()} />)
             ) : (
               <div className="col-span-2 text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">

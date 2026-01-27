@@ -51,13 +51,14 @@ export async function POST(
     }
 
     // Fermer la position
+    const closedAt = new Date().toISOString();
     const { error: updateError } = await supabaseAdmin
       .from('positions')
       .update({
         status: 'CLOSED',
         exit_price: currentPrice,
         pnl_eur: pnl,
-        closed_at: new Date().toISOString(),
+        closed_at: closedAt,
         close_reason: 'Manual close',
       })
       .eq('id', positionId);
@@ -68,6 +69,23 @@ export async function POST(
         { error: 'Failed to close position' },
         { status: 500 }
       );
+    }
+
+    // Mettre à jour aussi la table trades
+    const { error: tradeUpdateError } = await supabaseAdmin
+      .from('trades')
+      .update({
+        status: 'CLOSED',
+        exit_price: currentPrice,
+        pnl_eur: pnl,
+        closed_at: closedAt,
+      })
+      .eq('market_id', position.market_id)
+      .eq('status', 'OPEN');
+
+    if (tradeUpdateError) {
+      console.error('Error updating trade:', tradeUpdateError);
+      // Ne pas retourner d'erreur, car la position est déjà fermée
     }
 
     return NextResponse.json({

@@ -70,8 +70,13 @@ export interface Position {
   days_until_resolution: number;
   stop_loss_price: number;
   take_profit_price: number | null;
+  status: PositionStatus;
   opened_at: string;
   updated_at: string;
+  exit_price?: number;
+  pnl_eur?: number;
+  closed_at?: string | null;
+  close_reason?: string;
 }
 
 export interface MarketScan {
