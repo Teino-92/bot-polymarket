@@ -77,7 +77,7 @@ export default function LoginPage() {
       const authResponse = await fetch('/api/auth/wallet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, signature }),
+        body: JSON.stringify({ address, signature, nonce }),
       });
 
       const authData = await authResponse.json();

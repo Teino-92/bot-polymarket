@@ -49,33 +49,36 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, signature } = body;
+    const { address, signature, nonce } = body;
 
     console.log('🔍 POST /api/auth/wallet - Received:');
     console.log('Address:', address);
     console.log('Address (lowercase):', address?.toLowerCase());
     console.log('Signature:', signature);
+    console.log('Nonce (from client):', nonce);
     console.log('Authorized wallet from env:', process.env.AUTHORIZED_WALLET_ADDRESS);
 
-    if (!address || !signature) {
+    if (!address || !signature || !nonce) {
       return NextResponse.json(
-        { error: 'Address and signature are required' },
+        { error: 'Address, signature, and nonce are required' },
         { status: 400 }
       );
     }
 
-    // Get the nonce for this address
+    // Get the nonce for this address (for validation)
     const storedData = nonceStore.get(address.toLowerCase());
     console.log('Stored nonce data:', storedData);
-    if (!storedData) {
+
+    // Validate that the nonce matches what we issued
+    if (storedData && storedData.nonce !== nonce) {
       return NextResponse.json(
-        { error: 'No nonce found. Please request a new nonce.' },
+        { error: 'Invalid nonce. Please request a new nonce.' },
         { status: 400 }
       );
     }
 
     // Check if nonce is expired (5 minutes)
-    if (Date.now() - storedData.timestamp > 5 * 60 * 1000) {
+    if (storedData && Date.now() - storedData.timestamp > 5 * 60 * 1000) {
       nonceStore.delete(address.toLowerCase());
       return NextResponse.json(
         { error: 'Nonce expired. Please request a new nonce.' },
@@ -83,11 +86,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the signature
+    // Verify the signature using the nonce from the client
     const isValidSignature = await verifySignature(
       address,
       signature,
-      storedData.nonce
+      nonce
     );
 
     if (!isValidSignature) {
