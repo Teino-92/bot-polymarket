@@ -59,7 +59,8 @@ export default function LoginPage() {
       console.log('🔍 Client-side Debug:');
       console.log('Address:', address);
       console.log('Nonce:', nonce);
-      console.log('Message to sign:', message);
+      console.log('Message to sign:', JSON.stringify(message));
+      console.log('Message length:', message.length);
 
       // Request signature - MetaMask expects hex-encoded message or raw string
       // We'll send the raw string as MetaMask will handle the encoding
