@@ -61,19 +61,10 @@ export function createWalletSession(address: string) {
  * Simple verification - in production you'd verify the actual signature
  */
 export function verifyWalletOwnership(address: string): boolean {
-  console.log('🔍 Verifying wallet ownership:');
-  console.log('  - Address (input):', address);
-  console.log('  - Address (normalized):', address.toLowerCase());
-  console.log('  - Authorized wallet:', AUTHORIZED_WALLET);
-  console.log('  - Authorized wallet from env:', process.env.AUTHORIZED_WALLET_ADDRESS);
-
   if (!AUTHORIZED_WALLET) {
     console.warn('⚠️ AUTHORIZED_WALLET_ADDRESS not set in environment variables');
     return false;
   }
 
-  const isAuthorized = address.toLowerCase() === AUTHORIZED_WALLET;
-  console.log('  - Is authorized:', isAuthorized);
-
-  return isAuthorized;
+  return address.toLowerCase() === AUTHORIZED_WALLET;
 }

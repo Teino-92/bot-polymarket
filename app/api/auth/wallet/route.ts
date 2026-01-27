@@ -51,13 +51,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { address, signature, nonce } = body;
 
-    console.log('🔍 POST /api/auth/wallet - Received:');
-    console.log('Address:', address);
-    console.log('Address (lowercase):', address?.toLowerCase());
-    console.log('Signature:', signature);
-    console.log('Nonce (from client):', nonce);
-    console.log('Authorized wallet from env:', process.env.AUTHORIZED_WALLET_ADDRESS);
-
     if (!address || !signature || !nonce) {
       return NextResponse.json(
         { error: 'Address, signature, and nonce are required' },
@@ -67,7 +60,6 @@ export async function POST(request: NextRequest) {
 
     // Get the nonce for this address (for validation)
     const storedData = nonceStore.get(address.toLowerCase());
-    console.log('Stored nonce data:', storedData);
 
     // Validate that the nonce matches what we issued
     if (storedData && storedData.nonce !== nonce) {

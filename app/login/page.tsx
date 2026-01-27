@@ -56,21 +56,12 @@ export default function LoginPage() {
       // Generate message to sign
       const message = generateSignMessage(address, nonce);
 
-      console.log('🔍 Client-side Debug:');
-      console.log('Address:', address);
-      console.log('Nonce:', nonce);
-      console.log('Message to sign:', JSON.stringify(message));
-      console.log('Message length:', message.length);
-
       // Request signature - MetaMask expects hex-encoded message or raw string
       // We'll send the raw string as MetaMask will handle the encoding
       const signature = await window.ethereum.request({
         method: 'personal_sign',
         params: [message, address],
       });
-
-      console.log('Signature received:', signature);
-      console.log('Sending to server:', { address, signature, nonce });
 
       setStatus('Verifying signature...');
 

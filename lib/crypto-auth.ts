@@ -30,26 +30,15 @@ export async function verifySignature(
   try {
     const message = generateSignMessage(address, nonce);
 
-    console.log('🔍 Signature Verification Debug:');
-    console.log('Address (received):', address);
-    console.log('Address (normalized):', address.toLowerCase());
-    console.log('Signature:', signature);
-    console.log('Nonce:', nonce);
-    console.log('Message to verify:', JSON.stringify(message));
-    console.log('Message length:', message.length);
-    console.log('Message bytes:', Buffer.from(message).toString('hex'));
-
     const isValid = await verifyMessage({
       address: address as `0x${string}`,
       message,
       signature: signature as `0x${string}`,
     });
 
-    console.log('✅ Signature valid:', isValid);
     return isValid;
   } catch (error) {
-    console.error('❌ Signature verification failed:', error);
-    console.error('Error details:', error);
+    console.error('Signature verification failed:', error);
     return false;
   }
 }
