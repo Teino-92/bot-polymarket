@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate PWA Icons</title>
+</head>
+<body>
+  <h2>PWA Icon Generator</h2>
+  <canvas id="canvas192" width="192" height="192"></canvas>
+  <canvas id="canvas512" width="512" height="512"></canvas>
+  <br><br>
+  <button onclick="downloadIcons()">Download Icons</button>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#2563eb');
+      gradient.addColorStop(1, '#1e40af');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      // Chart icon
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = size * 0.05;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const padding = size * 0.2;
+      const chartWidth = size - padding * 2;
+      const chartHeight = size * 0.5;
+      const startX = padding;
+      const startY = size - padding;
+
+      // Draw candlesticks
+      const candleWidth = chartWidth / 6;
+      const data = [0.3, 0.6, 0.4, 0.8, 0.5, 0.7];
+
+      ctx.fillStyle = '#10b981';
+      for (let i = 0; i < data.length; i++) {
+        const x = startX + i * candleWidth + candleWidth * 0.2;
+        const h = data[i] * chartHeight;
+        ctx.fillRect(x, startY - h, candleWidth * 0.6, h);
+      }
+
+      // Draw trend line
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = size * 0.02;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY - chartHeight * 0.3);
+      ctx.lineTo(startX + chartWidth * 0.33, startY - chartHeight * 0.5);
+      ctx.lineTo(startX + chartWidth * 0.66, startY - chartHeight * 0.45);
+      ctx.lineTo(startX + chartWidth, startY - chartHeight * 0.7);
+      ctx.stroke();
+
+      // Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${size * 0.12}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('POLY', size / 2, size * 0.25);
+    }
+
+    drawIcon(document.getElementById('canvas192'));
+    drawIcon(document.getElementById('canvas512'));
+
+    function downloadIcons() {
+      const canvas192 = document.getElementById('canvas192');
+      const canvas512 = document.getElementById('canvas512');
+
+      canvas192.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'icon-192x192.png';
+        a.click();
+      });
+
+      canvas512.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'icon-512x512.png';
+        a.click();
+      });
+
+      alert('Icons generated! Save them to the public/ folder.');
+    }
+  </script>
+</body>
+</html>

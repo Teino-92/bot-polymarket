@@ -1,10 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyAuth } from '@/lib/auth';
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  // 🔒 AUTH CHECK
+  const authResult = verifyAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: 'Unauthorized', reason: authResult.reason },
+      { status: 401 }
+    );
+  }
+
   try {
     const params = await context.params;
     const positionId = params.id;

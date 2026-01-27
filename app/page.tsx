@@ -40,17 +40,23 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             <ThemeToggle />
             <Link
+              href="/calculators"
+              className="flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 bg-purple-600 text-white text-sm sm:text-base rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              📊 Calculators
+            </Link>
+            <Link
               href="/bot-config"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm sm:text-base rounded-lg hover:bg-blue-700 transition-colors"
             >
               Configuration
             </Link>
@@ -58,12 +64,12 @@ export default function Dashboard() {
         </div>
 
       {/* Live Monitoring */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <LiveMonitoring isPaused={config?.isPaused} />
       </div>
 
       {/* Stats overview */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard
           label="Total PnL"
           value={overview ? `${overview.totalPnL}€` : '...'}
@@ -91,18 +97,18 @@ export default function Dashboard() {
       </div>
 
       {/* PnL Chart */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <PnLChart data={overview?.pnlHistory7d || []} />
       </div>
 
       {/* Advanced Performance Charts */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">📊 Analyse de Performance</h2>
-          <div className="flex gap-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">📊 Analyse de Performance</h2>
+          <div className="flex gap-2 w-full sm:w-auto">
             <button
               onClick={() => setChartPeriod(7)}
-              className={`px-4 py-2 rounded ${
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded text-sm sm:text-base ${
                 chartPeriod === 7
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
@@ -112,7 +118,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setChartPeriod(30)}
-              className={`px-4 py-2 rounded ${
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded text-sm sm:text-base ${
                 chartPeriod === 30
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
@@ -126,11 +132,11 @@ export default function Dashboard() {
       </div>
 
       {/* Active positions */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
           Active Positions ({positions?.length || 0}/2)
         </h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
           {positions && positions.length > 0 ? (
             positions.map((p) => <PositionCard key={p.id} position={p} onClose={() => mutatePositions()} />)
           ) : (
@@ -144,13 +150,13 @@ export default function Dashboard() {
       </div>
 
       {/* Trade History */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <TradeHistory trades={trades || []} />
       </div>
 
       {/* Top opportunities */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Top Opportunities</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Top Opportunities</h2>
         <div className="space-y-3">
           {opportunities && opportunities.length > 0 ? (
             opportunities.slice(0, 5).map((opp) => (

@@ -17,10 +17,10 @@ export function StatCard({ label, value, change, subtext, color = 'gray' }: Stat
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
-      <div className="flex items-baseline gap-2">
-        <p className={`text-2xl font-bold ${colorClasses[color].split(' ')[0]} dark:text-gray-100`}>{value}</p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 shadow-sm">
+      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+      <div className="flex items-baseline gap-1 sm:gap-2">
+        <p className={`text-xl sm:text-2xl font-bold ${colorClasses[color].split(' ')[0]} dark:text-gray-100`}>{value}</p>
         {change !== undefined && (
           <span
             className={`text-xs font-semibold ${

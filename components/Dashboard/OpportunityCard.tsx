@@ -11,18 +11,18 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
 
   return (
     <div
-      className={`border border-gray-200 dark:border-gray-700 rounded-lg p-4 ${
+      className={`border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 ${
         isGood ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700 opacity-60'
       }`}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
-          <h4 className="font-medium text-sm line-clamp-2 text-gray-900 dark:text-white">{opportunity.marketName}</h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{opportunity.reasoning}</p>
+          <h4 className="font-medium text-xs sm:text-sm line-clamp-2 text-gray-900 dark:text-white">{opportunity.marketName}</h4>
+          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">{opportunity.reasoning}</p>
         </div>
-        <div className="ml-4">
+        <div className="ml-2 sm:ml-4">
           <span
-            className={`text-xs px-2 py-1 rounded font-semibold whitespace-nowrap ${
+            className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold whitespace-nowrap ${
               opportunity.action === 'HOLD'
                 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
                 : opportunity.action === 'FLIP'
@@ -35,7 +35,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-[10px] sm:text-xs">
         <div>
           <p className="text-gray-500 dark:text-gray-400">Spread</p>
           <p className="font-semibold text-gray-900 dark:text-white">{(opportunity.spread * 100).toFixed(1)}%</p>
