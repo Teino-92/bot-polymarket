@@ -1,71 +1,72 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { scanTopMarkets } from '@/lib/polymarket/market-selector';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 60 seconds for manual scan
 
 /**
  * POST /api/bot/scan - Lance un scan manuel des opportunités
- * Pour l'instant, crée des scans de démonstration
- * TODO: Implémenter le vrai scan avec l'API Polymarket
+ * Utilise l'API Gamma de Polymarket pour récupérer de vraies opportunités
  */
 export async function POST() {
   try {
-    console.log('[API] Manual scan triggered');
+    console.log('[API] Manual scan triggered - scanning real Polymarket markets...');
 
-    // Pour l'instant, créer quelques scans de test
-    const testScans = [
-      {
-        market_id: `test-${Date.now()}-1`,
-        market_name: 'Will Bitcoin reach $100k in 2026?',
-        current_spread: 0.05,
-        liquidity_usd: 50000,
-        days_until_resolution: 90,
-        hvs_score: 45.5,
-        flip_ev: 22.3,
-        recommendation: 'FLIP',
-        scanned_at: new Date().toISOString(),
-      },
-      {
-        market_id: `test-${Date.now()}-2`,
-        market_name: 'Will Ethereum ETF be approved in Q1 2026?',
-        current_spread: 0.03,
-        liquidity_usd: 75000,
-        days_until_resolution: 30,
-        hvs_score: 52.1,
-        flip_ev: 28.4,
-        recommendation: 'FLIP',
-        scanned_at: new Date().toISOString(),
-      },
-      {
-        market_id: `test-${Date.now()}-3`,
-        market_name: 'Will S&P 500 hit 7000 by end of 2026?',
-        current_spread: 0.08,
-        liquidity_usd: 120000,
-        days_until_resolution: 45,
-        hvs_score: 38.2,
-        flip_ev: 18.7,
-        recommendation: 'HOLD',
-        scanned_at: new Date().toISOString(),
-      },
-    ];
+    // Scanner les marchés Polymarket avec la fonction existante
+    const opportunities = await scanTopMarkets();
+
+    console.log(`[API] Found ${opportunities.length} opportunities from Polymarket`);
+
+    // Filtrer pour ne garder que les opportunités viables (FLIP ou HOLD)
+    const viable = opportunities.filter(opp => opp.action !== 'SKIP');
+    console.log(`[API] ${viable.length} viable opportunities (FLIP or HOLD)`);
+
+    if (viable.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'Scan terminé: aucune opportunité viable trouvée',
+        scansCreated: 0,
+      });
+    }
+
+    // Prendre les 10 meilleures opportunités
+    const top10 = viable.slice(0, 10);
+
+    // Formater pour insertion dans market_scan
+    const scansToInsert = top10.map(opp => ({
+      market_id: opp.marketId,
+      market_name: opp.marketName,
+      current_spread: opp.spread,
+      liquidity_usd: opp.liquidityUsd,
+      days_until_resolution: opp.daysUntilResolution,
+      hvs_score: opp.hvs,
+      flip_ev: opp.flipEV,
+      recommendation: opp.action,
+      scanned_at: new Date().toISOString(),
+    }));
 
     // Insérer dans market_scan
     const { error } = await supabaseAdmin
       .from('market_scan')
-      .insert(testScans);
+      .insert(scansToInsert);
 
     if (error) {
       console.error('[API] Error inserting scans:', error);
       throw new Error(`Failed to save scans: ${error.message}`);
     }
 
-    console.log(`[API] ✅ Created ${testScans.length} test opportunities`);
+    console.log(`[API] ✅ Saved ${scansToInsert.length} real opportunities to database`);
 
     return NextResponse.json({
       success: true,
-      message: `Scan terminé: ${testScans.length} opportunités trouvées`,
-      scansCreated: testScans.length,
+      message: `Scan terminé: ${scansToInsert.length} opportunités trouvées`,
+      scansCreated: scansToInsert.length,
+      topOpportunity: top10[0] ? {
+        market: top10[0].marketName,
+        action: top10[0].action,
+        flipEV: top10[0].flipEV.toFixed(2),
+      } : null,
     });
   } catch (error) {
     console.error('[API] Manual scan error:', error);
