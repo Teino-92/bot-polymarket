@@ -16,9 +16,10 @@ export default function BotConfigPage() {
   // Handlers pour les contrôles manuels
   const handleScan = async () => {
     try {
-      const response = await fetch('/api/bot/scan', { method: 'POST' });
+      // Appeler /api/bot/execute au lieu de /api/bot/scan pour trader automatiquement
+      const response = await fetch('/api/bot/execute', { method: 'POST' });
       const result = await response.json();
-      if (result.success) {
+      if (result.status === 'position_opened' || result.status === 'idle' || result.status === 'no_opportunities') {
         mutateConfig();
       }
       return result;
