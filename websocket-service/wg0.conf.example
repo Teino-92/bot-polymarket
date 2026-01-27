@@ -1,0 +1,21 @@
+# Example WireGuard configuration for Surfshark
+#
+# Pour obtenir ta vraie configuration:
+# 1. Va sur https://my.surfshark.com/
+# 2. Locations → Manual setup → WireGuard
+# 3. Choisis USA ou UK
+# 4. Télécharge le fichier de configuration
+# 5. Copie le contenu ici et renomme en wg0.conf
+#
+# Format attendu:
+
+[Interface]
+PrivateKey = YOUR_PRIVATE_KEY_HERE
+Address = 10.x.x.x/16
+DNS = 1.1.1.1
+
+[Peer]
+PublicKey = SURFSHARK_PUBLIC_KEY
+Endpoint = us-xxx.prod.surfshark.com:51820
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25

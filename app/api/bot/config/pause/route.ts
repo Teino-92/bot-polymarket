@@ -1,12 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/bot/config/pause - Toggle pause du bot
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+  // 🔒 AUTH CHECK
+  const authResult = verifyAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: 'Unauthorized', reason: authResult.reason },
+      { status: 401 }
+    );
+  }
+
   try {
     // Récupérer l'état actuel
     const { data: current } = await supabaseAdmin

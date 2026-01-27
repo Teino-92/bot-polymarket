@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Pages that don't require authentication
-const publicPaths = ['/login', '/api/auth/wallet'];
+const publicPaths = [
+  '/login',
+  '/api/auth/wallet',
+  '/api/telegram/webhook',  // Telegram webhooks need to be public
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,7 +20,15 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('wallet_session')?.value;
 
   if (!sessionCookie) {
-    // Redirect to login
+    // For API routes, return 401 instead of redirecting
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Unauthorized', reason: 'No session cookie' },
+        { status: 401 }
+      );
+    }
+
+    // For pages, redirect to login
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
@@ -27,6 +39,13 @@ export function middleware(request: NextRequest) {
 
     // Check if session expired (24h)
     if (sessionAge > 24 * 60 * 60 * 1000) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Unauthorized', reason: 'Session expired' },
+          { status: 401 }
+        );
+      }
+
       const loginUrl = new URL('/login', request.url);
       const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('wallet_session');
@@ -36,7 +55,15 @@ export function middleware(request: NextRequest) {
     // Session valid, allow access
     return NextResponse.next();
   } catch (e) {
-    // Invalid session, redirect to login
+    // Invalid session
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Unauthorized', reason: 'Invalid session' },
+        { status: 401 }
+      );
+    }
+
+    // Redirect to login
     const loginUrl = new URL('/login', request.url);
     const response = NextResponse.redirect(loginUrl);
     response.cookies.delete('wallet_session');

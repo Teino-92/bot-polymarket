@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,6 +66,15 @@ export async function GET() {
  * PATCH /api/bot/config - Met à jour la configuration du bot
  */
 export async function PATCH(request: NextRequest) {
+  // 🔒 AUTH CHECK
+  const authResult = verifyAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json(
+      { error: 'Unauthorized', reason: authResult.reason },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
 
