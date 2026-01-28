@@ -12,9 +12,13 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
+      - PEERDNS=auto
+      - LOG_CONFS=true
     volumes:
       # Monter la config WireGuard de Surfshark
       - ./wireguard:/config/wg_confs
+      # Forcer le DNS
+      - ./wireguard/resolv.conf:/etc/resolv.conf:ro
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.disable_ipv6=0
