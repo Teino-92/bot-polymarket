@@ -1,256 +1,602 @@
-# 🚀 Guide de déploiement complet
+# 🚀 Production Deployment Guide
 
-Ce guide explique comment déployer tous les composants du bot Polymarket.
+Complete guide for deploying the Polymarket Trading Bot to production.
 
-## Architecture complète
+## Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    ARCHITECTURE                          │
+│                    PRODUCTION ARCHITECTURE               │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌────────────┐      ┌──────────────┐                  │
-│  │ Polymarket │──────│ Gamma API    │ (marchés)        │
-│  │            │      │ (gratuit)    │                   │
+│  │ Polymarket │──────│ Gamma API    │                  │
+│  │            │      │              │                   │
 │  └────────────┘      └──────────────┘                   │
 │         │                                                │
 │         │ WebSocket                                      │
 │         ▼                                                │
 │  ┌────────────────────────┐                             │
 │  │  WebSocket Service     │                             │
-│  │  (Node.js 24/7)        │◄─── Railway/Render (gratuit)│
-│  │  - Stop-loss temps réel│                             │
-│  │  - Take-profit auto    │                             │
+│  │  (Docker on EC2)       │◄─── AWS EC2 (t3.small)     │
+│  │  - Real-time monitoring│                             │
+│  │  - Stop-loss/Take-profit│                            │
 │  └───────────┬────────────┘                             │
 │              │                                           │
 │              ▼                                           │
 │  ┌────────────────────────┐                             │
 │  │  Supabase              │                             │
-│  │  - PostgreSQL DB       │◄─── Supabase Cloud (gratuit)│
+│  │  - PostgreSQL DB       │◄─── Supabase Cloud (Free)  │
 │  │  - Edge Functions      │                             │
 │  │  - Cron (4h)           │                             │
 │  └───────────┬────────────┘                             │
 │              │                                           │
 │              ▼                                           │
 │  ┌────────────────────────┐                             │
-│  │  Vercel App            │                             │
-│  │  - Next.js Dashboard   │◄─── Vercel (gratuit)       │
+│  │  Dashboard             │                             │
+│  │  - Next.js App         │◄─── Vercel (Free)          │
 │  │  - API Routes          │                             │
-│  │  - Bot logic           │                             │
+│  │  - Bot Configuration   │                             │
 │  └────────────────────────┘                             │
 │                                                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 1️⃣ Supabase (Base de données)
+---
 
-**Coût: GRATUIT** (2 projets gratuits)
+## Prerequisites
 
-### Étapes:
+- AWS account with EC2 access
+- Supabase account
+- Vercel account
+- GitHub account (for CI/CD)
+- SSH key pair for EC2
 
-1. Créer un compte sur https://supabase.com
-2. Créer un nouveau projet
-3. Aller dans SQL Editor
-4. Exécuter les migrations dans l'ordre:
-   - `supabase/migrations/000_functions.sql`
-   - `supabase/migrations/001_trades.sql`
-   - `supabase/migrations/002_positions.sql`
-   - `supabase/migrations/003_market_scan.sql`
-   - `supabase/migrations/004_bot_config.sql`
+---
 
-5. Configurer Cron (Database → Cron Jobs):
-   ```sql
-   SELECT cron.schedule(
-     'bot-execute-every-4h',
-     '0 */4 * * *',
-     $$
-     SELECT net.http_post(
-       url := 'https://bot-polymarket-kappa.vercel.app/api/bot/execute',
-       headers := '{"Content-Type": "application/json"}'::jsonb
-     );
-     $$
-   );
-   ```
+## Step 1: Setup Supabase
 
-6. Noter les credentials:
-   - Project URL: `https://xxx.supabase.co`
-   - Anon key (public)
-   - Service role key (secret)
+**Cost: FREE** (up to 500MB database + 2GB bandwidth)
 
-## 2️⃣ Vercel (Application principale)
+### 1.1 Create Project
 
-**Coût: GRATUIT** (hobby tier)
+1. Go to [supabase.com/dashboard](https://supabase.com/dashboard)
+2. Click **"New Project"**
+3. Configure:
+   - **Name**: `polymarket-bot`
+   - **Database Password**: Generate a strong password
+   - **Region**: Choose closest to your EC2 region
+4. Wait for project to finish setup (~2 minutes)
 
-### Étapes:
+### 1.2 Run Migrations
 
-1. Créer un compte sur https://vercel.com
-2. Importer le repo GitHub `bot-polymarket`
-3. Configurer les variables d'environnement:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
-   SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
-   SIMULATION_MODE=true
-   WALLET_PRIVATE_KEY=0x0000... (fake pour simulation)
-   POLYMARKET_CLOB_URL=https://clob.polymarket.com
-   ```
+1. Go to **SQL Editor** in Supabase Dashboard
+2. Execute migrations in order:
 
-4. Déployer !
-5. URL obtenue: `https://bot-polymarket-xxx.vercel.app`
-
-## 3️⃣ Railway.app (WebSocket Service)
-
-**Coût: GRATUIT** (500h/mois = 24/7 possible)
-
-### Option A: Railway.app (Recommandé)
-
-1. Créer un compte sur https://railway.app
-2. New Project → Deploy from GitHub repo
-3. Sélectionner le repo `bot-polymarket`
-4. Settings → Root Directory: `websocket-service`
-5. Variables:
-   ```
-   SUPABASE_URL=https://xxx.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
-   ```
-6. Déployer !
-
-### Option B: Render.com
-
-1. Créer un compte sur https://render.com
-2. New → Web Service
-3. Connecter GitHub repo
-4. Root Directory: `websocket-service`
-5. Build: `npm install`
-6. Start: `npm start`
-7. Variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-8. Instance Type: **Free**
-9. Déployer !
-
-## 4️⃣ Vérification
-
-### Dashboard
-Aller sur `https://bot-polymarket-xxx.vercel.app`
-
-Tu devrais voir:
-- ✅ Positions actives (tableau vide au début)
-- ✅ Opportunities (106 marchés scannés)
-- ✅ Overview stats
-
-### API Routes
-Tester les endpoints:
-```bash
-# Analyser les marchés
-curl -X POST https://bot-polymarket-xxx.vercel.app/api/bot/analyze
-
-# Voir les opportunités
-curl https://bot-polymarket-xxx.vercel.app/api/opportunities
-
-# Voir les positions
-curl https://bot-polymarket-xxx.vercel.app/api/positions
+```sql
+-- Copy and paste content from each file:
+-- 1. supabase/migrations/000_functions.sql
+-- 2. supabase/migrations/001_trades.sql
+-- 3. supabase/migrations/002_positions.sql
+-- 4. supabase/migrations/003_market_scan.sql
+-- 5. supabase/migrations/004_bot_config.sql
 ```
 
-### WebSocket Service
-Vérifier les logs sur Railway/Render:
+### 1.3 Get API Credentials
+
+1. Go to **Settings → API**
+2. Copy and save:
+   - **Project URL**: `https://xxx.supabase.co`
+   - **anon public key**: starts with `eyJ...`
+   - **service_role key**: starts with `eyJ...`
+
+---
+
+## Step 2: Deploy Dashboard to Vercel
+
+**Cost: FREE** (Hobby plan)
+
+### 2.1 Connect GitHub
+
+1. Go to [vercel.com](https://vercel.com)
+2. Sign in with GitHub
+3. Click **"Add New Project"**
+4. Import `bot-polymarket` repository
+
+### 2.2 Configure Environment Variables
+
+Add the following in Vercel project settings:
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=eyJ...your-service-role-key
+
+# Your wallet address (authorized for login)
+AUTHORIZED_WALLET_ADDRESS=0x...your-wallet-address
+
+# Mode (start with simulation!)
+SIMULATION_MODE=true
+
+# Telegram (optional)
+TELEGRAM_BOT_TOKEN=123456:ABC...
+TELEGRAM_CHAT_ID=123456789
+```
+
+### 2.3 Deploy
+
+1. Click **"Deploy"**
+2. Wait for build to complete (~2-3 minutes)
+3. Your dashboard will be live at: `https://bot-polymarket-xxx.vercel.app`
+
+---
+
+## Step 3: Deploy WebSocket Service to EC2
+
+**Cost: ~$15-20/month** (t3.small, 24/7)
+
+### 3.1 Create EC2 Instance
+
+1. Go to [AWS EC2 Console](https://console.aws.amazon.com/ec2/)
+2. Click **"Launch Instance"**
+3. Configure:
+   - **Name**: `polymarket-bot-websocket`
+   - **AMI**: Ubuntu Server 24.04 LTS
+   - **Instance type**: `t3.small` (2 vCPU, 2 GB RAM)
+   - **Key pair**: Create or select SSH key (download `.pem` file)
+   - **Storage**: 20 GB gp3
+4. Security Group:
+   - Allow **SSH** (port 22) from **"My IP"**
+   - Allow **HTTP** (port 80) from **Anywhere** (optional, for health checks)
+5. Click **"Launch Instance"**
+6. Wait for status: **"Running"**
+7. Note the **Public IP** (e.g., `3.27.249.150`)
+
+### 3.2 Connect to EC2
+
+```bash
+# Set proper permissions on your SSH key
+chmod 400 ~/Downloads/your-key.pem
+
+# Connect to EC2
+ssh -i ~/Downloads/your-key.pem ubuntu@YOUR-PUBLIC-IP
+```
+
+### 3.3 Install Docker
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group
+sudo usermod -aG docker ubuntu
+
+# Install Docker Compose
+sudo apt install -y docker-compose
+
+# Verify installation
+docker --version
+docker-compose --version
+```
+
+**IMPORTANT**: Disconnect and reconnect for group changes to take effect:
+
+```bash
+exit
+```
+
+Then reconnect:
+```bash
+ssh -i ~/Downloads/your-key.pem ubuntu@YOUR-PUBLIC-IP
+```
+
+Verify Docker works without sudo:
+```bash
+docker ps
+```
+
+### 3.4 Clone Repository
+
+```bash
+cd ~
+git clone https://github.com/Teino-92/bot-polymarket.git
+cd bot-polymarket
+```
+
+### 3.5 Configure Environment
+
+```bash
+# Create .env file
+cp .env.example .env
+
+# Edit with your credentials
+nano .env
+```
+
+Add your production credentials:
+
+```bash
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...your-service-role-key
+
+# Telegram (optional)
+TELEGRAM_BOT_TOKEN=123456:ABC...
+TELEGRAM_CHAT_ID=123456789
+
+# Mode
+SIMULATION_MODE=true
+```
+
+Save: `Ctrl + O`, `Enter`, `Ctrl + X`
+
+### 3.6 Start the Service
+
+```bash
+# Build and start containers
+docker-compose up -d
+
+# Verify containers are running
+docker-compose ps
+```
+
+You should see:
+```
+NAME              STATUS
+bot-websocket     Up (healthy)
+```
+
+### 3.7 Verify Logs
+
+```bash
+# View logs
+docker-compose logs -f websocket-service
+```
+
+You should see:
 ```
 [WS] Starting Polymarket WebSocket Service...
+[WS] Supabase URL: https://your-project.supabase.co
+[WS] Loaded X active positions
 [WS] Connected to Polymarket WebSocket
-[WS] Monitoring 0 active positions
 ```
 
-### Cron Job
-Vérifier dans Supabase → Database → Cron Jobs:
-- Job devrait être "Active"
-- Prochaine exécution visible
+Press `Ctrl + C` to exit logs.
 
-## 5️⃣ Mode production (Trading réel)
+---
 
-⚠️ **ATTENTION: Ne PAS activer avant d'avoir testé en simulation !**
+## Step 4: Verify Deployment
 
-Pour passer en mode réel:
+### 4.1 Test Dashboard
 
-1. Obtenir une clé privée Polygon avec des fonds
-2. Mettre à jour la variable Vercel:
+1. Go to your Vercel URL: `https://bot-polymarket-xxx.vercel.app`
+2. Connect your wallet
+3. You should see:
+   - Dashboard overview
+   - WebSocket status: 🟢 Connected
+   - Positions table (empty initially)
+
+### 4.2 Test WebSocket Connection
+
+From your EC2 instance:
+
+```bash
+# Check WebSocket is responding
+curl http://localhost:8000/health
+```
+
+Should return: `OK`
+
+### 4.3 Test Supabase Connection
+
+```bash
+docker-compose exec websocket-service sh -c "curl -s https://api.ipify.org && echo"
+```
+
+Should return an IP address (your EC2 public IP).
+
+### 4.4 Test Market Scanning
+
+1. In dashboard, go to **Bot Config** page
+2. Click **"Manual Scan"**
+3. Wait 5-10 seconds
+4. Check **Opportunities** tab for markets
+
+---
+
+## Step 5: Enable Production Trading
+
+⚠️ **CRITICAL**: Only do this after testing in simulation for at least 7 days!
+
+### 5.1 Get Polygon Wallet
+
+1. Create a new wallet for the bot (never use your main wallet)
+2. Fund it with USDC on Polygon network
+3. Export the private key
+
+### 5.2 Update Vercel Environment
+
+1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+2. Update:
    ```
    SIMULATION_MODE=false
-   WALLET_PRIVATE_KEY=0xVRAIE_CLE_PRIVEE
+   WALLET_PRIVATE_KEY=0xYOUR_REAL_PRIVATE_KEY
    ```
-3. Redéployer l'app Vercel
+3. Redeploy the application
 
-Le bot commencera à trader réellement à la prochaine exécution cron (4h).
+### 5.3 Update EC2 Environment
 
-## 📊 Monitoring
+```bash
+# On EC2
+cd ~/bot-polymarket
+nano .env
+```
 
-### Logs Vercel
+Change:
+```bash
+SIMULATION_MODE=false
+```
+
+Save and restart:
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+---
+
+## Monitoring & Maintenance
+
+### View Logs
+
+**Vercel Dashboard:**
+```
 https://vercel.com/dashboard → bot-polymarket → Logs
-
-### Logs Railway
-https://railway.app → Projet → Deployments → View Logs
-
-### Logs Supabase
-https://supabase.com → Projet → Logs
-
-### Database
-Supabase → Table Editor → positions / trades
-
-## 🔧 Maintenance
-
-### Mettre à jour le bot
-```bash
-git pull
-git push
 ```
-→ Vercel redéploie automatiquement
 
-### Mettre à jour le WS service
+**EC2 WebSocket Logs:**
 ```bash
-git pull
-git push
+# Real-time logs
+docker-compose logs -f websocket-service
+
+# Last 100 lines
+docker-compose logs --tail=100 websocket-service
 ```
-→ Railway/Render redéploie automatiquement
 
-### Modifier la config du bot
-Supabase → Table Editor → bot_config
+**Supabase Logs:**
+```
+https://supabase.com/dashboard → Your Project → Logs
+```
 
-### Nettoyer les anciennes positions
+### Restart Services
+
+**Dashboard (Vercel):**
+- Automatically redeploys on git push
+
+**WebSocket Service (EC2):**
+```bash
+# Restart
+docker-compose restart
+
+# Stop
+docker-compose down
+
+# Start
+docker-compose up -d
+
+# Rebuild after code changes
+docker-compose down
+git pull
+docker-compose up -d --build
+```
+
+### Update Bot Code
+
+```bash
+# On your local machine
+git add .
+git commit -m "Update bot logic"
+git push
+
+# Vercel will auto-deploy
+
+# On EC2
+ssh -i ~/Downloads/your-key.pem ubuntu@YOUR-PUBLIC-IP
+cd ~/bot-polymarket
+git pull
+docker-compose up -d --build
+```
+
+### Check Database
+
 ```sql
-DELETE FROM positions WHERE status = 'CLOSED' AND closed_at < NOW() - INTERVAL '30 days';
-DELETE FROM trades WHERE closed_at < NOW() - INTERVAL '90 days';
+-- View active positions
+SELECT * FROM positions WHERE status = 'OPEN' ORDER BY created_at DESC;
+
+-- View recent trades
+SELECT * FROM trades ORDER BY created_at DESC LIMIT 20;
+
+-- View bot configuration
+SELECT * FROM bot_config ORDER BY updated_at DESC LIMIT 1;
 ```
 
-## 💰 Coûts totaux
+---
 
-| Service | Plan | Coût/mois |
+## Common Issues
+
+### WebSocket disconnected
+
+**Normal behavior** - reconnects automatically every 5 seconds.
+
+If it stays disconnected:
+```bash
+docker-compose logs websocket-service
+```
+
+Check for Supabase connection errors.
+
+### "No opportunities found"
+
+**Normal in simulation mode** - only test markets available.
+
+In production, adjust filters in Bot Config page.
+
+### Container won't start
+
+```bash
+# Check logs
+docker-compose logs websocket-service
+
+# Verify .env file
+cat .env
+
+# Rebuild
+docker-compose down
+docker-compose up -d --build
+```
+
+### High memory usage
+
+```bash
+# Check container stats
+docker stats
+
+# If needed, restart
+docker-compose restart
+```
+
+### EC2 disk full
+
+```bash
+# Clean up old Docker images
+docker system prune -a
+
+# Check disk usage
+df -h
+```
+
+---
+
+## Cost Breakdown
+
+| Service | Plan | Cost/Month |
 |---------|------|-----------|
-| Supabase | Free | 0€ |
-| Vercel | Hobby | 0€ |
-| Railway | Free | 0€ |
-| **TOTAL** | | **0€** |
+| Supabase | Free | $0 |
+| Vercel | Hobby | $0 |
+| EC2 t3.small | On-Demand (US East) | ~$15 |
+| **TOTAL** | | **~$15/month** |
 
-✅ **100% GRATUIT pour toujours !**
+### Cost Optimization
 
-## 🆘 Problèmes courants
+**Option 1: Stop EC2 when not trading**
+```bash
+# Stop instance (via AWS Console or CLI)
+aws ec2 stop-instances --instance-ids i-YOUR-INSTANCE-ID
 
-### Le bot ne trade pas
-- Vérifier SIMULATION_MODE=true (normal au début)
-- Vérifier les logs Vercel
-- Vérifier que le cron Supabase est actif
+# Start when needed
+aws ec2 start-instances --instance-ids i-YOUR-INSTANCE-ID
+```
 
-### WebSocket déconnecté
-- Normal, reconnexion auto toutes les 5s
-- Vérifier les logs Railway/Render
+**Option 2: Use Spot Instances**
+- ~70% cheaper than on-demand
+- Risk of interruption (auto-restart with Docker)
 
-### Pas d'opportunités trouvées
-- Normal si marchés en dehors des filtres
-- Ajuster les filtres dans `lib/config.ts`
+**Option 3: Reserved Instance**
+- Commit to 1 year = ~40% discount
+- Best for 24/7 operation
 
-### API rate limit
-- Cache activé (5min TTL)
-- Max 1000 calls/h sur Gamma API
+---
 
-## 📚 Documentation
+## Security Best Practices
 
-- Polymarket Docs: https://docs.polymarket.com
-- Supabase Docs: https://supabase.com/docs
-- Vercel Docs: https://vercel.com/docs
-- Railway Docs: https://docs.railway.app
+### Never commit secrets
+
+```bash
+# Verify .gitignore includes
+.env
+.env.local
+.env.production
+*.pem
+```
+
+### Rotate API keys regularly
+
+1. Generate new Supabase service role key
+2. Update in Vercel and EC2
+3. Revoke old key
+
+### Use separate wallets
+
+- ❌ Never use your main trading wallet
+- ✅ Create dedicated bot wallet with limited funds
+
+### Enable 2FA
+
+- AWS account
+- GitHub account
+- Vercel account
+- Supabase account
+
+### Restrict EC2 Security Group
+
+- Only allow SSH from your IP
+- Don't expose port 8000 publicly (use SSH tunnel if needed)
+
+---
+
+## Next Steps
+
+1. **Test in simulation** for 7+ days
+2. **Monitor** PnL and trade decisions
+3. **Adjust** risk parameters via Bot Config
+4. **Enable production** with small capital
+5. **Scale up** gradually
+
+---
+
+## Useful Commands
+
+```bash
+# EC2: View all containers
+docker-compose ps
+
+# EC2: Follow logs
+docker-compose logs -f
+
+# EC2: Restart service
+docker-compose restart
+
+# EC2: Update bot
+cd ~/bot-polymarket && git pull && docker-compose up -d --build
+
+# EC2: Check resource usage
+docker stats
+
+# EC2: Clean up
+docker system prune -a
+
+# Local: Deploy to Vercel
+vercel --prod
+
+# Local: Test locally
+npm run dev
+```
+
+---
+
+## Support
+
+- Check [SETUP.md](./SETUP.md) for local development
+- Check [SECURITY.md](./SECURITY.md) for security best practices
+- Check [TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md) for notifications
+- Check [EC2_DEPLOYMENT_GUIDE.md](./EC2_DEPLOYMENT_GUIDE.md) for detailed EC2 steps
+- Open an issue on GitHub for bugs
+
+---
+
+**Happy trading! 🚀**
