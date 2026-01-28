@@ -10,7 +10,7 @@ Le service WebSocket écoute les mises à jour de prix en temps réel sur Polyma
 
 - Un compte Railway (https://railway.app) - gratuit pour commencer
 - Accès à votre base de données Supabase
-- Variables d'environnement configurées
+- Environment variables configured
 
 ## Étape 1: Préparer le Code du WebSocket Service
 
@@ -182,7 +182,7 @@ monitorPositions();
 1. Cliquez sur "New Project"
 2. Sélectionnez "Deploy from GitHub repo"
 3. Choisissez le repository `bot-polymarket`
-4. Railway détectera automatiquement Deno si votre projet est configuré correctement
+4. Railway will automatically detect Deno if your project is configured correctly
 
 ### 2.3 Configuration du Service
 
