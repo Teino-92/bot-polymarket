@@ -134,7 +134,7 @@ TELEGRAM_CHAT_ID=123456789
 
 ## Step 3: Deploy WebSocket Service to EC2
 
-**Cost: ~$15-20/month** (t3.small, 24/7)
+**Cost: FREE for 12 months** with AWS Free Tier (750 hours/month of t2.micro), then **~$15/month** for t3.small
 
 ### 3.1 Create EC2 Instance
 
@@ -488,8 +488,11 @@ df -h
 |---------|------|-----------|
 | Supabase | Free | $0 |
 | Vercel | Hobby | $0 |
-| EC2 t3.small | On-Demand (US East) | ~$15 |
-| **TOTAL** | | **~$15/month** |
+| EC2 t2.micro | AWS Free Tier (12 months)* | $0 |
+| EC2 t3.small | After Free Tier | ~$15 |
+| **TOTAL** | | **$0 for first 12 months, then ~$15/month** |
+
+*AWS Free Tier for new accounts includes 750 hours/month of t2.micro EC2 instance (enough for 24/7 operation) for 12 months.
 
 ### Cost Optimization
 
@@ -594,7 +597,6 @@ npm run dev
 - Check [SETUP.md](./SETUP.md) for local development
 - Check [SECURITY.md](./SECURITY.md) for security best practices
 - Check [TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md) for notifications
-- Check [EC2_DEPLOYMENT_GUIDE.md](./EC2_DEPLOYMENT_GUIDE.md) for detailed EC2 steps
 - Open an issue on GitHub for bugs
 
 ---

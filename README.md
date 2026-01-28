@@ -293,7 +293,6 @@ vercel --prod                # Deploy to Vercel
 
 - **[SETUP.md](./SETUP.md)** - Local development setup
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment (EC2 + Vercel)
-- **[EC2_DEPLOYMENT_GUIDE.md](./EC2_DEPLOYMENT_GUIDE.md)** - Detailed EC2 setup
 - **[SECURITY.md](./SECURITY.md)** - Security best practices
 - **[TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md)** - Telegram notifications setup
 
@@ -354,8 +353,11 @@ docker-compose logs -f websocket-service
 |---------|------|-----------|
 | Supabase | Free | $0 |
 | Vercel | Hobby | $0 |
-| EC2 t3.small | On-Demand | ~$15 |
-| **TOTAL** | | **~$15/month** |
+| EC2 t2.micro | AWS Free Tier (12 months)* | $0 |
+| EC2 t3.small | After Free Tier | ~$15 |
+| **TOTAL** | | **$0 for 12 months, then ~$15/month** |
+
+*AWS Free Tier includes 750 hours/month of t2.micro (enough for 24/7 operation) for the first 12 months with new AWS accounts.
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for cost optimization options.
 

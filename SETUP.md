@@ -153,7 +153,7 @@ WebSocket runs on `ws://localhost:8000`
 curl -X POST http://localhost:3000/api/telegram/test
 ```
 
-You should receive a message: "Bot Telegram configuré ✅"
+You should receive a message: "Telegram Bot configured ✅"
 
 ## Common Issues
 

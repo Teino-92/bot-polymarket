@@ -1,48 +1,48 @@
-# 🔒 Configuration de Sécurité
+# 🔒 Security Configuration
 
-## ⚠️ IMPORTANT: À faire AVANT de connecter ton vrai wallet!
+## ⚠️ IMPORTANT: Do this BEFORE connecting your real wallet!
 
-### 1. Configure ton wallet autorisé
+### 1. Configure your authorized wallet
 
-Dans `.env.local` et sur Vercel:
+In `.env.local` and on Vercel:
 
 ```bash
-AUTHORIZED_WALLET_ADDRESS=0xVotre-Adresse-Polygon-Ici
+AUTHORIZED_WALLET_ADDRESS=0xYour-Polygon-Address-Here
 ```
 
-**C'est quoi cette adresse?**
-- L'adresse Polygon que tu utilises pour le bot Polymarket
-- Seulement cette adresse pourra accéder au dashboard
-- Format: 0x... (42 caractères)
+**What is this address?**
+- The Polygon address you use for the Polymarket bot
+- Only this address will be able to access the dashboard
+- Format: 0x... (42 characters)
 
-### 2. (Optionnel) Configure un token d'authentification
+### 2. (Optional) Configure an authentication token
 
-Pour accès programmatique (scripts, webhooks):
+For programmatic access (scripts, webhooks):
 
 ```bash
-AUTH_TOKEN=un-token-secret-tres-long-et-aleatoire
+AUTH_TOKEN=a-very-long-and-random-secret-token
 ```
 
-Génère un token sécurisé:
+Generate a secure token:
 ```bash
-# Sur macOS/Linux
+# On macOS/Linux
 openssl rand -hex 32
 
-# Ou utilise un générateur en ligne:
+# Or use an online generator:
 # https://www.uuidgenerator.net/
 ```
 
-### 3. Ajoute ces variables sur Vercel
+### 3. Add these variables on Vercel
 
 ```bash
 vercel env add AUTHORIZED_WALLET_ADDRESS production
-# Colle ton adresse wallet
+# Paste your wallet address
 
 vercel env add AUTH_TOKEN production
-# Colle ton token (optionnel)
+# Paste your token (optional)
 ```
 
-### 4. Redéploie
+### 4. Redeploy
 
 ```bash
 vercel --prod
@@ -50,30 +50,30 @@ vercel --prod
 
 ---
 
-## 🔐 Comment ça marche?
+## 🔐 How does it work?
 
-### Pages protégées automatiquement:
+### Automatically protected pages:
 - ✅ Dashboard (/)
 - ✅ Calculators (/calculators)
 - ✅ Bot Config (/bot-config)
-- ✅ **Toutes les pages** sauf `/login`
+- ✅ **All pages** except `/login`
 
-### APIs protégées:
-- ✅ `/api/positions/[id]/close` - Fermer position
-- ⚠️ Autres APIs à protéger manuellement (voir ci-dessous)
+### Protected APIs:
+- ✅ `/api/positions/[id]/close` - Close position
+- ⚠️ Other APIs need manual protection (see below)
 
-### Comment accéder:
-1. Va sur ton URL: `https://bot-polymarket-kappa.vercel.app`
-2. Tu seras redirigé vers `/login`
-3. Entre ton adresse wallet
-4. Si elle correspond à `AUTHORIZED_WALLET_ADDRESS`, tu es connecté!
-5. Session valide 24h
+### How to access:
+1. Go to your URL: `https://bot-polymarket-xxx.vercel.app`
+2. You'll be redirected to `/login`
+3. Enter your wallet address
+4. If it matches `AUTHORIZED_WALLET_ADDRESS`, you're logged in!
+5. Session valid for 24h
 
 ---
 
-## 🛡️ Protéger les autres APIs (Optionnel mais recommandé)
+## 🛡️ Protect other APIs (Optional but recommended)
 
-Pour protéger une route API, ajoute ce code au début:
+To protect an API route, add this code at the beginning:
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
@@ -89,11 +89,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Ton code API ici...
+  // Your API code here...
 }
 ```
 
-### APIs à protéger en priorité:
+### APIs to protect as priority:
 - `/api/bot/config` (POST/PUT)
 - `/api/bot/config/pause` (POST)
 - `/api/bot/execute` (POST)
@@ -101,83 +101,83 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## 🔑 Utiliser le token d'authentification (API access)
+## 🔑 Using the authentication token (API access)
 
-Si tu veux appeler les APIs depuis un script externe:
+If you want to call APIs from an external script:
 
 ```bash
-curl -H "Authorization: Bearer ton-auth-token" \
-  https://bot-polymarket-kappa.vercel.app/api/positions/123/close \
+curl -H "Authorization: Bearer your-auth-token" \
+  https://bot-polymarket-xxx.vercel.app/api/positions/123/close \
   -X POST
 ```
 
 ---
 
-## ✅ Checklist de Sécurité
+## ✅ Security Checklist
 
-Avant de mettre ton vrai wallet:
+Before connecting your real wallet:
 
-- [ ] `AUTHORIZED_WALLET_ADDRESS` configuré en local
-- [ ] `AUTHORIZED_WALLET_ADDRESS` ajouté sur Vercel
-- [ ] `AUTH_TOKEN` généré (optionnel)
-- [ ] Redéploiement effectué
-- [ ] Test de connexion avec ta wallet
-- [ ] Test de connexion avec une wallet non-autorisée (doit être refusée)
-- [ ] APIs sensibles protégées
-
----
-
-## 🆘 Problèmes?
-
-**Je ne peux pas me connecter:**
-- Vérifie que l'adresse dans `.env` correspond EXACTEMENT à celle que tu entres
-- Les addresses sont en minuscules
-- Format: `0x...` (42 caractères)
-
-**Session expire trop vite:**
-- Par défaut: 24h
-- Pour changer: édite `lib/auth.ts` → `24 * 60 * 60 * 1000`
-
-**Quelqu'un a accédé sans autorisation:**
-- Change immédiatement `AUTH_TOKEN`
-- Vérifie les logs Vercel
-- Redéploie
+- [ ] `AUTHORIZED_WALLET_ADDRESS` configured locally
+- [ ] `AUTHORIZED_WALLET_ADDRESS` added on Vercel
+- [ ] `AUTH_TOKEN` generated (optional)
+- [ ] Redeployment completed
+- [ ] Test connection with your wallet
+- [ ] Test connection with an unauthorized wallet (should be rejected)
+- [ ] Sensitive APIs protected
 
 ---
 
-## 🚨 En cas de compromission
+## 🆘 Problems?
 
-1. **Immédiatement:**
+**I can't connect:**
+- Verify that the address in `.env` matches EXACTLY what you enter
+- Addresses are in lowercase
+- Format: `0x...` (42 characters)
+
+**Session expires too quickly:**
+- Default: 24h
+- To change: edit `lib/auth.ts` → `24 * 60 * 60 * 1000`
+
+**Someone accessed without authorization:**
+- Immediately change `AUTH_TOKEN`
+- Check Vercel logs
+- Redeploy
+
+---
+
+## 🚨 In case of compromise
+
+1. **Immediately:**
    ```bash
-   # Change le token
+   # Change the token
    vercel env rm AUTH_TOKEN production
    vercel env add AUTH_TOKEN production
-   # Nouveau token ici
+   # New token here
 
-   # Redéploie
+   # Redeploy
    vercel --prod
    ```
 
-2. **Change le wallet du bot si nécessaire**
+2. **Change the bot's wallet if necessary**
 
-3. **Vérifie les positions ouvertes**
+3. **Check open positions**
 
 ---
 
 ## 📊 Monitoring
 
-**Voir qui accède au dashboard:**
+**See who accesses the dashboard:**
 ```bash
 vercel logs --prod
 ```
 
-**Filtrer les tentatives d'auth:**
+**Filter auth attempts:**
 ```bash
 vercel logs --prod | grep "Unauthorized"
 ```
 
 ---
 
-**Tu es maintenant protégé!** 🛡️
+**You're now protected!** 🛡️
 
-Seul le wallet configuré peut accéder au dashboard et fermer tes positions.
+Only the configured wallet can access the dashboard and close your positions.

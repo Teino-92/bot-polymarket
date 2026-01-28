@@ -70,7 +70,7 @@ curl http://localhost:3001/api/telegram/test
 
 ## 5️⃣ Configurer le Webhook Telegram
 
-Pour recevoir les commandes (`/status`, `/take`, etc.), configure le webhook:
+To receive commands (`/status`, `/take`, etc.), configure the webhook:
 
 ```bash
 curl -X POST "https://api.telegram.org/bot8190369966:AAH6mMytuMj-_m1SpgBhhxm69Jvwn8DCf2M/setWebhook?url=https://bot-polymarket-kappa.vercel.app/api/telegram/webhook"
@@ -152,7 +152,7 @@ Réponds avec:
 
 ## 🤖 Commandes disponibles
 
-Une fois le webhook configuré, tu peux envoyer:
+Once the webhook is configured, you can send:
 
 | Commande | Description |
 |----------|-------------|
@@ -175,7 +175,7 @@ Une fois le webhook configuré, tu peux envoyer:
 
 ### Commandes ne fonctionnent pas
 
-1. Vérifier que le webhook est configuré:
+1. Verify that the webhook is configured:
    ```bash
    curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"
    ```
@@ -189,7 +189,7 @@ Les notifications sont envoyées quand:
 - Un trade est fermé (WebSocket ou résolution)
 - Une meilleure opportunité est trouvée mais positions pleines
 
-Pour tester, tu peux créer une position manuellement dans Supabase.
+To test, you can manually create a position in Supabase.
 
 ## 🔒 Sécurité
 
@@ -207,7 +207,7 @@ Pour tester, tu peux créer une position manuellement dans Supabase.
 - [ ] Variables ajoutées sur Vercel
 - [ ] App redéployée
 - [ ] Test `/api/telegram/test` réussi
-- [ ] Webhook configuré
+- [ ] Webhook configured
 - [ ] Commande `/start` fonctionne
 
 🎉 Tout est prêt ! Tu recevras maintenant toutes les notifications de trading !
