@@ -33,6 +33,9 @@ yarn-error.log*
 # WireGuard config
 wireguard/
 
+# Deno
+deno.lock
+
 # vercel
 .vercel
 
