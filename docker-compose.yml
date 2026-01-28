@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Container VPN - Tout le traffic passe par ici
   vpn:
-    image: ghcr.io/wfg/wireguard-docker:latest
+    image: linuxserver/wireguard:latest
     container_name: surfshark-vpn
     cap_add:
       - NET_ADMIN
@@ -11,9 +11,10 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+      - TZ=Europe/Paris
     volumes:
       # Monter la config WireGuard de Surfshark
-      - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf:ro
+      - ./wireguard:/config/wg_confs
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.disable_ipv6=0
