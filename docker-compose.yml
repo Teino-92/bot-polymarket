@@ -1,37 +1,16 @@
 version: '3.8'
 
 services:
-  # Container VPN Surfshark WireGuard
-  vpn:
-    image: linuxserver/wireguard:latest
-    container_name: surfshark-vpn
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Paris
-    volumes:
-      - ./wireguard:/config/wg_confs
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    restart: unless-stopped
-    networks:
-      - bot-network
-
-  # Container WebSocket Service - Utilise le réseau du VPN
   websocket-service:
     build:
       context: ./websocket-service
       dockerfile: Dockerfile
     container_name: bot-websocket
-    network_mode: "service:vpn"
-    depends_on:
-      - vpn
+    ports:
+      - "8000:8000"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
@@ -41,7 +20,3 @@ services:
     restart: unless-stopped
     volumes:
       - ./websocket-service/logs:/app/logs
-
-networks:
-  bot-network:
-    driver: bridge
