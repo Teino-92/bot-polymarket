@@ -37,7 +37,7 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
       }`}></div>
 
       {/* Card */}
-      <div className="relative bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl p-5 border border-slate-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.01]">
+      <div className="relative bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl rounded-2xl p-5 border border-slate-300/50 dark:border-slate-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.01]">
         {/* Icon + Badge */}
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
@@ -61,7 +61,7 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
 
         {/* Market Name */}
         <div className="mt-14 mb-4">
-          <h3 className="text-white font-bold text-base line-clamp-2 leading-tight">
+          <h3 className="text-slate-900 dark:text-white font-bold text-base line-clamp-2 leading-tight">
             {position.market_name}
           </h3>
         </div>
@@ -69,7 +69,7 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
         {/* Probability Indicator - Polymarket style */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-400 text-sm font-medium">
+            <span className="text-slate-600 dark:text-slate-400 text-sm font-medium">
               {position.side === 'YES' ? 'UP' : 'DOWN'}
             </span>
             <div className="flex items-baseline gap-2">
@@ -107,18 +107,18 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
         </div>
 
         {/* PnL Display */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-4">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 mb-4">
           <div>
-            <p className="text-slate-400 text-xs font-medium mb-1">Unrealized PnL</p>
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">Unrealized PnL</p>
             <p className={`text-2xl font-bold ${
-              isProfitable ? 'text-emerald-400' : 'text-red-400'
+              isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
             }`}>
               {isProfitable ? '+' : ''}{Number(position.unrealized_pnl_eur).toFixed(2)}€
             </p>
           </div>
           <div className="text-right">
-            <p className="text-slate-400 text-xs font-medium mb-1">Position Size</p>
-            <p className="text-lg font-bold text-white">
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">Position Size</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">
               {Number(position.position_size_eur).toFixed(0)}€
             </p>
           </div>
@@ -126,15 +126,15 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
 
         {/* Price Details Grid */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
-            <p className="text-slate-400 text-xs mb-1">Entry Price</p>
-            <p className="text-white font-mono font-bold text-sm">
+          <div className="p-3 rounded-xl bg-slate-100/30 dark:bg-slate-800/30 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Entry Price</p>
+            <p className="text-slate-900 dark:text-white font-mono font-bold text-sm">
               {(Number(position.entry_price) * 100).toFixed(1)}%
             </p>
           </div>
-          <div className="p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
-            <p className="text-slate-400 text-xs mb-1">Current Price</p>
-            <p className="text-white font-mono font-bold text-sm">
+          <div className="p-3 rounded-xl bg-slate-100/30 dark:bg-slate-800/30 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Current Price</p>
+            <p className="text-slate-900 dark:text-white font-mono font-bold text-sm">
               {(Number(position.current_price) * 100).toFixed(1)}%
             </p>
           </div>
@@ -178,7 +178,7 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
         </div>
 
         {/* Footer Info */}
-        <div className="flex justify-between items-center text-xs text-slate-400 mb-4 px-2">
+        <div className="flex justify-between items-center text-xs text-slate-600 dark:text-slate-400 mb-4 px-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             <span>{position.days_until_resolution} days until resolution</span>

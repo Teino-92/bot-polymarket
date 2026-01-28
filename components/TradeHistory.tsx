@@ -102,18 +102,31 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold text-white mb-6">📜 Historique des Trades</h2>
+    <div className="group relative">
+      {/* Glow effect */}
+      <div className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20" />
+
+      {/* Card */}
+      <div className="relative bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <span className="text-xl">📜</span>
+          </div>
+          <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+            Trade History
+          </h2>
+        </div>
 
       {/* Filtres */}
       <div className="mb-6 space-y-4">
         {/* Barre de recherche */}
         <input
           type="text"
-          placeholder="🔍 Rechercher un marché..."
+          placeholder="🔍 Search market..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
 
         {/* Filtres rapides */}
@@ -122,7 +135,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-            className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
           >
             <option value="all">📊 Tous les statuts</option>
             <option value="OPEN">🟢 Ouverts</option>
@@ -167,37 +180,37 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
         <div className="flex gap-3">
           <button
             onClick={() => setSortBy('date')}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded-xl font-medium transition-all ${
               sortBy === 'date'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
             }`}
           >
-            📅 Trier par date
+            📅 Sort by date
           </button>
           <button
             onClick={() => setSortBy('pnl')}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded-xl font-medium transition-all ${
               sortBy === 'pnl'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
             }`}
           >
-            💰 Trier par PnL
+            💰 Sort by PnL
           </button>
         </div>
       </div>
 
       {/* Résultats */}
-      <div className="text-sm text-gray-400 mb-4">
-        {filteredTrades.length} trade{filteredTrades.length > 1 ? 's' : ''} trouvé{filteredTrades.length > 1 ? 's' : ''}
+      <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        {filteredTrades.length} trade{filteredTrades.length > 1 ? 's' : ''} found
       </div>
 
       {/* Tableau */}
       <div className="overflow-x-auto">
         {filteredTrades.length > 0 ? (
-          <table className="w-full text-sm text-left text-gray-300">
-            <thead className="text-xs uppercase bg-gray-700 text-gray-400">
+          <table className="w-full text-sm text-left text-slate-700 dark:text-slate-300">
+            <thead className="text-xs uppercase bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               <tr>
                 <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3">Marché</th>
@@ -213,7 +226,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             </thead>
             <tbody>
               {filteredTrades.map((trade) => (
-                <tr key={trade.id} className="border-b border-gray-700 hover:bg-gray-750">
+                <tr key={trade.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/50">
                   <td className="px-4 py-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -265,10 +278,11 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-12 text-gray-400">
-            <p>Aucun trade ne correspond aux filtres sélectionnés</p>
+          <div className="text-center py-12 text-slate-600 dark:text-slate-400">
+            <p>No trades match the selected filters</p>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

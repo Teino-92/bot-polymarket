@@ -9,65 +9,112 @@ interface OpportunityCardProps {
 export function OpportunityCard({ opportunity }: OpportunityCardProps) {
   const isGood = opportunity.action !== 'SKIP';
 
-  return (
-    <div
-      className={`border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 ${
-        isGood ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700 opacity-60'
-      }`}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
-          <h4 className="font-medium text-xs sm:text-sm line-clamp-2 text-gray-900 dark:text-white">{opportunity.marketName}</h4>
-          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">{opportunity.reasoning}</p>
-        </div>
-        <div className="ml-2 sm:ml-4">
-          <span
-            className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold whitespace-nowrap ${
-              opportunity.action === 'HOLD'
-                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                : opportunity.action === 'FLIP'
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-            }`}
-          >
-            {opportunity.action}
-          </span>
-        </div>
-      </div>
+  const actionConfig = {
+    HOLD: {
+      gradient: 'from-purple-500/20 via-violet-500/20 to-fuchsia-500/20',
+      textColor: 'text-purple-300',
+      borderColor: 'border-purple-500/30',
+      bgColor: 'bg-purple-500/20',
+      icon: '🎯',
+    },
+    FLIP: {
+      gradient: 'from-blue-500/20 via-cyan-500/20 to-sky-500/20',
+      textColor: 'text-blue-300',
+      borderColor: 'border-blue-500/30',
+      bgColor: 'bg-blue-500/20',
+      icon: '⚡',
+    },
+    SKIP: {
+      gradient: 'from-slate-500/10 via-gray-500/10 to-slate-500/10',
+      textColor: 'text-slate-400',
+      borderColor: 'border-slate-600/30',
+      bgColor: 'bg-slate-500/10',
+      icon: '⏸️',
+    },
+  };
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-[10px] sm:text-xs">
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">Spread</p>
-          <p className="font-semibold text-gray-900 dark:text-white">{(opportunity.spread * 100).toFixed(1)}%</p>
+  const config = actionConfig[opportunity.action as keyof typeof actionConfig];
+
+  return (
+    <div className={`group relative ${!isGood && 'opacity-50'}`}>
+      {/* Glow effect */}
+      {isGood && (
+        <div className={`absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg bg-gradient-to-r ${config.gradient}`} />
+      )}
+
+      {/* Card */}
+      <div className={`relative bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border ${config.borderColor} rounded-2xl p-4 sm:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 ${isGood && 'hover:scale-[1.01]'}`}>
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <div className="flex items-start gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shrink-0">
+                {opportunity.marketName.slice(0, 2).toUpperCase()}
+              </div>
+              <h4 className="font-bold text-sm sm:text-base line-clamp-2 text-slate-900 dark:text-white leading-tight">
+                {opportunity.marketName}
+              </h4>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 italic">
+              {opportunity.reasoning}
+            </p>
+          </div>
+
+          {/* Action Badge */}
+          <div className="ml-3 sm:ml-4">
+            <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap backdrop-blur-sm ${config.bgColor} ${config.textColor} border ${config.borderColor}`}>
+              <span>{config.icon}</span>
+              {opportunity.action}
+            </span>
+          </div>
         </div>
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">HVS</p>
-          <p
-            className={`font-semibold ${
-              opportunity.hvs >= 5
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-gray-600 dark:text-gray-400'
-            }`}
-          >
-            {opportunity.hvs.toFixed(1)}€
-          </p>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          {/* Spread */}
+          <div className="p-3 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">Spread</p>
+            <p className="font-mono font-bold text-slate-900 dark:text-white text-sm">
+              {(opportunity.spread * 100).toFixed(1)}%
+            </p>
+          </div>
+
+          {/* HVS */}
+          <div className="p-3 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">HVS</p>
+            <p className={`font-mono font-bold text-sm ${
+              opportunity.hvs >= 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'
+            }`}>
+              {opportunity.hvs.toFixed(1)}€
+            </p>
+          </div>
+
+          {/* Flip EV */}
+          <div className="p-3 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">Flip EV</p>
+            <p className={`font-mono font-bold text-sm ${
+              opportunity.flipEV >= 3 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'
+            }`}>
+              {opportunity.flipEV.toFixed(1)}€
+            </p>
+          </div>
+
+          {/* Days */}
+          <div className="p-3 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/30 dark:border-slate-700/30">
+            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">Days</p>
+            <p className="font-mono font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              {opportunity.daysUntilResolution}d
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">Flip EV</p>
-          <p
-            className={`font-semibold ${
-              opportunity.flipEV >= 3
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400'
-            }`}
-          >
-            {opportunity.flipEV.toFixed(1)}€
-          </p>
-        </div>
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">Days</p>
-          <p className="font-semibold text-gray-900 dark:text-white">{opportunity.daysUntilResolution}d</p>
-        </div>
+
+        {/* Shimmer effect */}
+        {isGood && (
+          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+          </div>
+        )}
       </div>
     </div>
   );

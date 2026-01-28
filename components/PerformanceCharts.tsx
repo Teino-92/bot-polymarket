@@ -121,9 +121,9 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
 
   if (trades.length === 0) {
     return (
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-bold text-white mb-4">📈 Performance</h2>
-        <p className="text-gray-400">Aucune donnée de trading pour le moment.</p>
+      <div className="bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+        <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-4">📈 Performance</h2>
+        <p className="text-slate-600 dark:text-slate-400">No trading data available yet.</p>
       </div>
     );
   }
@@ -131,14 +131,14 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
   return (
     <div className="space-y-6">
       {/* Graphique PnL Cumulatif */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">
-          💰 PnL Cumulatif ({period} jours)
+      <div className="bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+        <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 mb-4">
+          💰 Cumulative PnL ({period} days)
         </h3>
         {pnlOverTime.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={pnlOverTime}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" className="dark:stroke-slate-700" />
               <XAxis dataKey="date" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
               <Tooltip
@@ -169,17 +169,17 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-gray-400 text-center py-8">
-            Aucun trade fermé dans les {period} derniers jours
+          <p className="text-slate-600 dark:text-slate-400 text-center py-8">
+            No closed trades in the last {period} days
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Graphique Win/Loss */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            🎯 Distribution Gains/Pertes
+        <div className="bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+          <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 mb-4">
+            🎯 Win/Loss Distribution
           </h3>
           {winLossData.some(d => d.value > 0) ? (
             <ResponsiveContainer width="100%" height={250}>
@@ -208,14 +208,14 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-center py-8">Aucun trade fermé</p>
+            <p className="text-slate-600 dark:text-slate-400 text-center py-8">No closed trades</p>
           )}
         </div>
 
         {/* Graphique Performance par Stratégie */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            📊 Performance par Stratégie
+        <div className="bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+          <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400 mb-4">
+            📊 Performance by Strategy
           </h3>
           {strategyPerformance.some(s => s.trades > 0) ? (
             <ResponsiveContainer width="100%" height={250}>
@@ -237,16 +237,16 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-center py-8">Aucun trade fermé</p>
+            <p className="text-slate-600 dark:text-slate-400 text-center py-8">No closed trades</p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
             {strategyPerformance.map(s => (
-              <div key={s.strategy} className="bg-gray-700 rounded p-3">
-                <p className="text-gray-400">{s.strategy}</p>
-                <p className="text-white font-semibold">
+              <div key={s.strategy} className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 border border-slate-300/50 dark:border-slate-700/50">
+                <p className="text-slate-600 dark:text-slate-400">{s.strategy}</p>
+                <p className="text-slate-900 dark:text-white font-semibold">
                   {s.trades} trade{s.trades > 1 ? 's' : ''}
                 </p>
-                <p className={s.pnl >= 0 ? 'text-green-400' : 'text-red-400'}>
+                <p className={s.pnl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                   {s.pnl >= 0 ? '+' : ''}{s.pnl.toFixed(2)}€
                 </p>
               </div>
