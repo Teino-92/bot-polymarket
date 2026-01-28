@@ -27,6 +27,11 @@ yarn-error.log*
 # local env files
 .env
 .env.local.development
+.env.docker
+.env.production
+
+# WireGuard config
+wireguard/
 
 # vercel
 .vercel

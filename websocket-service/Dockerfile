@@ -1,25 +1,20 @@
-# Dockerfile pour WebSocket Service avec WireGuard support
-FROM denoland/deno:alpine-1.40.0
+FROM denoland/deno:alpine-2.1.4
 
-# Installer WireGuard tools
-RUN apk add --no-cache wireguard-tools iptables
-
+# Créer le répertoire de l'app
 WORKDIR /app
 
-# Copy application files
+# Copier les fichiers
 COPY . .
 
-# Copy WireGuard config if provided
-# Add your Surfshark WireGuard config as wg0.conf
-COPY wg0.conf /etc/wireguard/wg0.conf 2>/dev/null || true
+# Créer le répertoire pour les logs
+RUN mkdir -p /app/logs
 
-# Cache dependencies
-RUN deno cache index.ts
+# Exposer le port (note: avec network_mode: service:vpn, ce port sera sur le container VPN)
+EXPOSE 8000
 
-# Startup script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Healthcheck pour vérifier que le service tourne
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD deno eval "try { await fetch('http://localhost:8000/health'); Deno.exit(0); } catch { Deno.exit(1); }"
 
-EXPOSE 8080
-
-CMD ["/start.sh"]
+# Démarrer le service
+CMD ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "--allow-sys", "index.ts"]

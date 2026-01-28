@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Container VPN - Tout le traffic passe par ici
+  vpn:
+    image: ghcr.io/wfg/wireguard-docker:latest
+    container_name: surfshark-vpn
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      # Monter la config WireGuard de Surfshark
+      - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf:ro
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+    restart: unless-stopped
+    networks:
+      - bot-network
+
+  # Container WebSocket Service - Utilise le network du VPN
+  websocket-service:
+    build:
+      context: ./websocket-service
+      dockerfile: Dockerfile
+    container_name: bot-websocket
+    # CRITIQUE: Utilise le network stack du container VPN
+    network_mode: "service:vpn"
+    depends_on:
+      - vpn
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - SIMULATION_MODE=${SIMULATION_MODE}
+    restart: unless-stopped
+    # Pas de volumes si pas nécessaire, mais si tu veux les logs:
+    volumes:
+      - ./websocket-service/logs:/app/logs
+
+networks:
+  bot-network:
+    driver: bridge
