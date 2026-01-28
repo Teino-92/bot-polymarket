@@ -12,8 +12,11 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - PEERDNS=auto
+      - PEERDNS=none
       - LOG_CONFS=true
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     volumes:
       # Monter la config WireGuard de Surfshark
       - ./wireguard:/config/wg_confs
