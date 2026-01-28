@@ -28,12 +28,17 @@ See **[SETUP.md](./SETUP.md)** for complete local development setup guide includ
 
 ### Production Deployment
 
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for production deployment guide including:
-- Supabase setup
-- Vercel deployment (Dashboard)
-- EC2 deployment (WebSocket Service)
-- Cost breakdown (~$15/month)
-- Monitoring & maintenance
+**Choose your deployment option:**
+
+- **[DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md)** - FREE hosting with Railway/Render (recommended for US/UK/unrestricted countries)
+  - 100% free or $5/month
+  - 5-minute setup
+  - Automatic scaling
+
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - EC2 deployment with Docker
+  - Full control over infrastructure
+  - Free for 12 months (AWS Free Tier), then ~$15/month
+  - Best for restricted countries or advanced users
 
 ---
 
@@ -292,7 +297,8 @@ vercel --prod                # Deploy to Vercel
 ## 📚 Documentation
 
 - **[SETUP.md](./SETUP.md)** - Local development setup
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment (EC2 + Vercel)
+- **[DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md)** - Production deployment (Railway/Render - FREE)
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment (EC2 - Full control)
 - **[SECURITY.md](./SECURITY.md)** - Security best practices
 - **[TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md)** - Telegram notifications setup
 
@@ -349,17 +355,33 @@ docker-compose logs -f websocket-service
 
 ## 💰 Cost Breakdown
 
+### Option 1: Railway/Render (Recommended)
+
 | Service | Plan | Cost/Month |
 |---------|------|-----------|
 | Supabase | Free | $0 |
 | Vercel | Hobby | $0 |
-| EC2 t2.micro | AWS Free Tier (12 months)* | $0 |
+| Railway/Render | Free* | $0 |
+| Railway | Hobby (24/7) | $5 |
+| **TOTAL** | | **$0-5/month** |
+
+*Railway free tier: 500 hours/month (service sleeps after inactivity). Render free tier: 750 hours/month.
+
+See [DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md) for setup guide.
+
+### Option 2: EC2 (Full Control)
+
+| Service | Plan | Cost/Month |
+|---------|------|-----------|
+| Supabase | Free | $0 |
+| Vercel | Hobby | $0 |
+| EC2 t2.micro | AWS Free Tier (12 months)** | $0 |
 | EC2 t3.small | After Free Tier | ~$15 |
 | **TOTAL** | | **$0 for 12 months, then ~$15/month** |
 
-*AWS Free Tier includes 750 hours/month of t2.micro (enough for 24/7 operation) for the first 12 months with new AWS accounts.
+**AWS Free Tier includes 750 hours/month of t2.micro (enough for 24/7 operation) for the first 12 months with new AWS accounts.
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for cost optimization options.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for setup guide.
 
 ---
 
