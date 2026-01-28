@@ -25,125 +25,211 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
       : ((Number(position.entry_price) - Number(position.current_price)) / (Number(position.entry_price) - Number(position.take_profit_price))) * 100
     : 0;
 
+  const currentProbability = (Number(position.current_price) * 100).toFixed(0);
+
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-2 sm:mb-3">
-        <div className="flex-1">
-          <h3 className="font-semibold text-xs sm:text-sm line-clamp-2 text-gray-900 dark:text-white">{position.market_name}</h3>
-          <div className="flex gap-2 mt-1">
-            <span
-              className={`text-xs px-2 py-0.5 rounded ${
-                position.side === 'YES' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-              }`}
-            >
-              {position.side}
+    <div className="group relative">
+      {/* Glow effect */}
+      <div className={`absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${
+        isProfitable
+          ? 'bg-gradient-to-r from-emerald-500/50 via-green-500/50 to-teal-500/50'
+          : 'bg-gradient-to-r from-red-500/50 via-orange-500/50 to-pink-500/50'
+      }`}></div>
+
+      {/* Card */}
+      <div className="relative bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl p-5 border border-slate-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.01]">
+        {/* Icon + Badge */}
+        <div className="absolute top-3 left-3 flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+            {position.market_name.slice(0, 3).toUpperCase()}
+          </div>
+        </div>
+
+        {/* Top Right: Badges */}
+        <div className="absolute top-3 right-3 flex gap-2">
+          <span className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+            position.side === 'YES'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+              : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+          }`}>
+            {position.side}
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-sm">
+            {position.strategy}
+          </span>
+        </div>
+
+        {/* Market Name */}
+        <div className="mt-14 mb-4">
+          <h3 className="text-white font-bold text-base line-clamp-2 leading-tight">
+            {position.market_name}
+          </h3>
+        </div>
+
+        {/* Probability Indicator - Polymarket style */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-slate-400 text-sm font-medium">
+              {position.side === 'YES' ? 'UP' : 'DOWN'}
             </span>
-            <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-              {position.strategy}
-            </span>
-          </div>
-        </div>
-        <div className="text-right ml-2">
-          <div className={`text-base sm:text-lg font-bold ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
-            {isProfitable ? '+' : ''}
-            {Number(position.unrealized_pnl_eur).toFixed(2)}€
-          </div>
-          <div className={`text-[10px] sm:text-xs ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
-            {pnlPercent > 0 ? '+' : ''}
-            {pnlPercent.toFixed(1)}%
-          </div>
-        </div>
-      </div>
-
-      {/* Prices */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-2 sm:mb-3 text-[10px] sm:text-xs">
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">Entry</p>
-          <p className="font-mono font-semibold text-gray-900 dark:text-white">{Number(position.entry_price).toFixed(3)}</p>
-        </div>
-        <div>
-          <p className="text-gray-500 dark:text-gray-400">Current</p>
-          <p className="font-mono font-semibold text-gray-900 dark:text-white">{Number(position.current_price).toFixed(3)}</p>
-        </div>
-      </div>
-
-      {/* Progress bars */}
-      <div className="space-y-2 mb-2 sm:mb-3">
-        {/* Stop-loss distance */}
-        <div>
-          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-            <span>Stop-loss</span>
-            <span>{Number(position.stop_loss_price).toFixed(3)}</span>
-          </div>
-          <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-red-500"
-              style={{
-                width: `${Math.max(0, Math.min(100, stopLossDistance))}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Take-profit (si FLIP) */}
-        {position.take_profit_price && (
-          <div>
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-              <span>Take-profit</span>
-              <span>{Number(position.take_profit_price).toFixed(3)}</span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-3xl font-bold ${
+                isProfitable ? 'text-emerald-400' : 'text-slate-300'
+              }`}>
+                {currentProbability}%
+              </span>
+              <span className="text-xs font-medium">chance</span>
             </div>
-            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
+              isProfitable
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'bg-red-500/20 text-red-400'
+            }`}>
+              <span className="text-lg">{isProfitable ? '▲' : '▼'}</span>
+              <span className="text-sm font-bold">
+                {Math.abs(pnlPercent).toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="relative h-2 bg-slate-700/50 rounded-full overflow-hidden">
+            <div
+              className={`absolute h-full rounded-full transition-all duration-500 ${
+                position.side === 'YES'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                  : 'bg-gradient-to-r from-rose-500 to-orange-400'
+              }`}
+              style={{ width: `${currentProbability}%` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+          </div>
+        </div>
+
+        {/* PnL Display */}
+        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-4">
+          <div>
+            <p className="text-slate-400 text-xs font-medium mb-1">Unrealized PnL</p>
+            <p className={`text-2xl font-bold ${
+              isProfitable ? 'text-emerald-400' : 'text-red-400'
+            }`}>
+              {isProfitable ? '+' : ''}{Number(position.unrealized_pnl_eur).toFixed(2)}€
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-slate-400 text-xs font-medium mb-1">Position Size</p>
+            <p className="text-lg font-bold text-white">
+              {Number(position.position_size_eur).toFixed(0)}€
+            </p>
+          </div>
+        </div>
+
+        {/* Price Details Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
+            <p className="text-slate-400 text-xs mb-1">Entry Price</p>
+            <p className="text-white font-mono font-bold text-sm">
+              {(Number(position.entry_price) * 100).toFixed(1)}%
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
+            <p className="text-slate-400 text-xs mb-1">Current Price</p>
+            <p className="text-white font-mono font-bold text-sm">
+              {(Number(position.current_price) * 100).toFixed(1)}%
+            </p>
+          </div>
+        </div>
+
+        {/* Risk Levels */}
+        <div className="space-y-3 mb-4">
+          {/* Stop-loss */}
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-red-400 text-xs font-bold">⛔ STOP-LOSS</span>
+              <span className="text-red-300 font-mono text-xs">
+                {(Number(position.stop_loss_price) * 100).toFixed(1)}%
+              </span>
+            </div>
+            <div className="h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
               <div
-                className="h-full bg-green-500"
-                style={{
-                  width: `${Math.max(0, Math.min(100, takeProfitDistance))}%`,
-                }}
+                className="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full transition-all duration-500"
+                style={{ width: `${Math.max(0, Math.min(100, stopLossDistance))}%` }}
               />
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Footer */}
-      <div className="flex justify-between items-center text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
-        <span>{position.days_until_resolution}d until resolution</span>
-        <span>Size: {Number(position.position_size_eur).toFixed(0)}€</span>
-      </div>
+          {/* Take-profit (if FLIP) */}
+          {position.take_profit_price && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-emerald-400 text-xs font-bold">🎯 TAKE-PROFIT</span>
+                <span className="text-emerald-300 font-mono text-xs">
+                  {(Number(position.take_profit_price) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(0, Math.min(100, takeProfitDistance))}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
-      {/* Close Button */}
-      <button
-        onClick={async () => {
-          if (isClosing) return;
-          if (!confirm('Êtes-vous sûr de vouloir fermer cette position manuellement ?')) return;
+        {/* Footer Info */}
+        <div className="flex justify-between items-center text-xs text-slate-400 mb-4 px-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span>{position.days_until_resolution} days until resolution</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>📊</span>
+            <span className="font-mono">{position.id.slice(0, 8)}</span>
+          </div>
+        </div>
 
-          setIsClosing(true);
-          try {
-            const response = await fetch(`/api/positions/${position.id}/close`, {
-              method: 'POST',
-            });
+        {/* Close Button */}
+        <button
+          onClick={async () => {
+            if (isClosing) return;
+            if (!confirm('Are you sure you want to close this position manually?')) return;
 
-            if (response.ok) {
-              onClose?.();
-            } else {
-              const error = await response.json();
-              alert(`Erreur: ${error.error || 'Impossible de fermer la position'}`);
+            setIsClosing(true);
+            try {
+              const response = await fetch(`/api/positions/${position.id}/close`, {
+                method: 'POST',
+              });
+
+              if (response.ok) {
+                onClose?.();
+              } else {
+                const error = await response.json();
+                alert(`Error: ${error.error || 'Unable to close position'}`);
+              }
+            } catch (error) {
+              alert('Network error');
+            } finally {
+              setIsClosing(false);
             }
-          } catch (error) {
-            alert('Erreur réseau');
-          } finally {
-            setIsClosing(false);
-          }
-        }}
-        disabled={isClosing}
-        className={`w-full py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
-          isClosing
-            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-            : 'bg-red-600 hover:bg-red-700 text-white active:scale-95'
-        }`}
-      >
-        {isClosing ? 'Fermeture...' : '🔴 Fermer la position'}
-      </button>
+          }}
+          disabled={isClosing}
+          className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+            isClosing
+              ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg hover:shadow-red-500/50 active:scale-95'
+          }`}
+        >
+          {isClosing ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="animate-spin">⟳</span>
+              Closing...
+            </span>
+          ) : (
+            '🔴 Close Position'
+          )}
+        </button>
+      </div>
     </div>
   );
 }
