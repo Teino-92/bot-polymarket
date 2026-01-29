@@ -207,6 +207,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           </div>
         </div>
       </div>
+      </div>
 
       {/* Alertes système */}
       <div className="mt-6 space-y-2">
@@ -241,7 +242,6 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           <strong className="text-slate-900 dark:text-white">Monitoring:</strong> Open positions are monitored continuously by the WebSocket service
         </p>
       </div>
-    </div>
     </div>
   );
 }
