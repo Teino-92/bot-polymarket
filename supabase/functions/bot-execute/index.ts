@@ -9,6 +9,7 @@
  * URL: https://your-project.supabase.co/functions/v1/bot-execute
  */
 
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 serve(async (req) => {
