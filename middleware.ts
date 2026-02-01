@@ -6,6 +6,7 @@ const publicPaths = [
   '/login',
   '/api/auth/wallet',
   '/api/telegram/webhook',  // Telegram webhooks need to be public
+  '/api/websocket/health',  // WebSocket health check proxy (needs to be accessible for monitoring)
 ];
 
 export function middleware(request: NextRequest) {
