@@ -30,8 +30,8 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
   useEffect(() => {
     const checkWebSocket = async () => {
       try {
-        // Essayer de ping le service WebSocket (Railway)
-        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
+        // WebSocket service URL (EC2)
+        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://13.55.157.43:8000';
 
         // Si pas d'URL configurée, on considère offline
         if (!wsUrl) {
