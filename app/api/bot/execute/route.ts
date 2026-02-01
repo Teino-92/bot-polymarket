@@ -4,6 +4,7 @@ import { scanTopMarkets, getBestOpportunity } from '@/lib/polymarket/market-sele
 import { polymarketClient } from '@/lib/polymarket/client';
 import { supabaseAdmin } from '@/lib/supabase';
 import { BOT_CONFIG } from '@/lib/config';
+import { notifyPositionOpened } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
 
@@ -142,6 +143,16 @@ export async function POST() {
     });
 
     console.log('   ✅ Position opened successfully');
+
+    // Envoyer notification Telegram
+    await notifyPositionOpened({
+      marketName: best.marketName,
+      strategy: best.action,
+      entryPrice: best.entryPrice,
+      size: BOT_CONFIG.maxPositionSizeEur,
+      stopLoss: stopLossPrice,
+      takeProfit: takeProfitPrice,
+    });
 
     return NextResponse.json({
       status: 'position_opened',

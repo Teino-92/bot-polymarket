@@ -2,6 +2,7 @@ import type { Position, RiskParams, TradeSide, TradeStrategy } from '../types';
 import { supabaseAdmin } from '../supabase';
 import { polymarketClient } from './client';
 import { RISK_PARAMS, BOT_CONFIG } from '../config';
+import { notifyPositionClosed } from '../telegram';
 
 /**
  * Risk Manager
@@ -263,6 +264,15 @@ export class RiskManager {
     console.log(
       `   Position closed: ${position.market_name} | PnL: ${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}€`
     );
+
+    // Envoyer notification Telegram
+    await notifyPositionClosed({
+      marketName: position.market_name,
+      entryPrice: Number(position.entry_price),
+      exitPrice,
+      pnl,
+      reason: status,
+    });
   }
 
   /**

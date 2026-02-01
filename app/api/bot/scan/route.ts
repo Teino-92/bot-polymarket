@@ -8,19 +8,23 @@ export const maxDuration = 60; // 60 seconds for manual scan
 /**
  * POST /api/bot/scan - Lance un scan manuel des opportunités
  * Utilise l'API Gamma de Polymarket pour récupérer de vraies opportunités
+ *
+ * NOTE: Cette route fait UNIQUEMENT un scan, sans toucher aux positions
+ * Pour exécuter le bot (monitoring + ouverture), utiliser /api/bot/execute
  */
 export async function POST() {
   try {
-    console.log('[API] Manual scan triggered - scanning real Polymarket markets...');
+    console.log('[API/SCAN] Manual scan triggered - scanning real Polymarket markets...');
+    console.log('[API/SCAN] ℹ️  This is a SCAN ONLY - no positions will be affected');
 
     // Scanner les marchés Polymarket avec la fonction existante
     const opportunities = await scanTopMarkets();
 
-    console.log(`[API] Found ${opportunities.length} opportunities from Polymarket`);
+    console.log(`[API/SCAN] Found ${opportunities.length} opportunities from Polymarket`);
 
     // Filtrer pour ne garder que les opportunités viables (FLIP ou HOLD)
     const viable = opportunities.filter(opp => opp.action !== 'SKIP');
-    console.log(`[API] ${viable.length} viable opportunities (FLIP or HOLD)`);
+    console.log(`[API/SCAN] ${viable.length} viable opportunities (FLIP or HOLD)`);
 
     if (viable.length === 0) {
       return NextResponse.json({
@@ -52,11 +56,12 @@ export async function POST() {
       .insert(scansToInsert);
 
     if (error) {
-      console.error('[API] Error inserting scans:', error);
+      console.error('[API/SCAN] Error inserting scans:', error);
       throw new Error(`Failed to save scans: ${error.message}`);
     }
 
-    console.log(`[API] ✅ Saved ${scansToInsert.length} real opportunities to database`);
+    console.log(`[API/SCAN] ✅ Saved ${scansToInsert.length} real opportunities to database`);
+    console.log('[API/SCAN] ✅ No positions were modified (scan only)');
 
     return NextResponse.json({
       success: true,
@@ -69,7 +74,7 @@ export async function POST() {
       } : null,
     });
   } catch (error) {
-    console.error('[API] Manual scan error:', error);
+    console.error('[API/SCAN] Manual scan error:', error);
     return NextResponse.json(
       {
         success: false,
