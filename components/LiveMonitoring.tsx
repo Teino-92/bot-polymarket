@@ -221,12 +221,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           </div>
         )}
 
-        {websocketStatus === 'online' && !isPaused && (
-          <div className="flex items-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-600 rounded-xl text-green-700 dark:text-green-400 text-sm backdrop-blur-sm">
-            <span>✅</span>
-            <span>Everything working correctly - Bot monitoring markets in real-time</span>
-          </div>
-        )}
+        {/* Success banner hidden - status visible in Live Monitoring card */}
       </div>
 
       {/* Info */}
