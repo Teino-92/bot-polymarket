@@ -1,0 +1,36 @@
+name: Bot Polymarket - Cron Job
+
+on:
+  schedule:
+    # Runs every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Permet exécution manuelle
+
+jobs:
+  execute-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute Bot
+        run: |
+          echo "🤖 Executing Polymarket Bot..."
+
+          # Call the Vercel API endpoint
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Content-Type: application/json" \
+            https://bot-polymarket-kappa.vercel.app/api/bot/execute)
+
+          # Extract HTTP status code
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+
+          # Check if successful
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Bot executed successfully"
+          else
+            echo "❌ Bot execution failed"
+            exit 1
+          fi
