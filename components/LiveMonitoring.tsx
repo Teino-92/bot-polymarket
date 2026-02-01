@@ -30,20 +30,16 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
   useEffect(() => {
     const checkWebSocket = async () => {
       try {
-        // WebSocket service URL (EC2)
-        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://13.55.157.43:8000';
-
-        // Si pas d'URL configurée, on considère offline
-        if (!wsUrl) {
-          setWebsocketStatus('offline');
-          return;
-        }
+        // Use Vercel API proxy to avoid Mixed Content issues (HTTPS -> HTTP)
+        // This also bypasses browser cache issues
+        const healthUrl = '/api/websocket/health';
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const response = await fetch(`${wsUrl}/health`, {
-          signal: controller.signal
+        const response = await fetch(healthUrl, {
+          signal: controller.signal,
+          cache: 'no-cache', // Force fresh data, bypass Service Worker cache
         });
 
         clearTimeout(timeoutId);
