@@ -26,8 +26,15 @@ export default function LoginPage() {
   const { disconnect } = useDisconnect();
 
   useEffect(() => {
-    // Check if MetaMask is installed
+    // Check if any wallet extension is installed (MetaMask, Rabby, etc.)
     setHasMetaMask(typeof window.ethereum !== 'undefined');
+
+    // Log detected wallet for debugging
+    if (window.ethereum) {
+      const isRabby = window.ethereum.isRabby;
+      const isMetaMask = window.ethereum.isMetaMask;
+      console.log('Wallet detected:', { isRabby, isMetaMask });
+    }
   }, []);
 
   // Auto-authenticate when WalletConnect connects
@@ -43,24 +50,30 @@ export default function LoginPage() {
     setStatus('Getting nonce...');
 
     try {
+      console.log('[AUTH] Starting authentication for address:', walletAddress);
+
       // Get nonce from server
       const nonceResponse = await fetch(`/api/auth/wallet?address=${walletAddress}`);
       const { nonce, error: nonceError } = await nonceResponse.json();
 
       if (nonceError) {
+        console.error('[AUTH] Nonce error:', nonceError);
         setError(nonceError);
         setLoading(false);
         disconnect();
         return;
       }
 
+      console.log('[AUTH] Nonce received:', nonce);
       setStatus('Please sign the message in your wallet...');
 
       // Generate message to sign
       const message = generateSignMessage(walletAddress, nonce);
+      console.log('[AUTH] Message to sign:', message);
 
       // Request signature using wagmi
       const signature = await signMessageAsync({ message });
+      console.log('[AUTH] Signature received:', signature);
 
       setStatus('Verifying signature...');
 
@@ -72,8 +85,10 @@ export default function LoginPage() {
       });
 
       const authData = await authResponse.json();
+      console.log('[AUTH] Server response:', authData);
 
       if (!authResponse.ok) {
+        console.error('[AUTH] Verification failed:', authData);
         setError(authData.error || 'Authentication failed');
         setLoading(false);
         disconnect();
@@ -81,13 +96,15 @@ export default function LoginPage() {
       }
 
       // Success! Redirect to dashboard
+      console.log('[AUTH] Success!');
       setStatus('Success! Redirecting...');
       setTimeout(() => {
         router.push('/');
         router.refresh();
       }, 500);
     } catch (err: any) {
-      if (err.message?.includes('User rejected')) {
+      console.error('[AUTH] Error:', err);
+      if (err.message?.includes('User rejected') || err.message?.includes('User denied')) {
         setError('You rejected the signature request');
       } else {
         setError(err.message || 'Authentication failed');
