@@ -19,20 +19,22 @@
 **Diagnostic**:
 - `vercel.json` ne contenait PAS de configuration de cron
 - Le bot ne s'exécutait jamais automatiquement en 7 jours
+- **Découverte**: Vercel Hobby (gratuit) limite les crons à 1 fois par jour maximum
 
-**Solution**: ✅ **CORRIGÉ**
-- Ajouté configuration cron dans `vercel.json`:
-```json
-{
-  "crons": [
-    {
-      "path": "/api/bot/execute",
-      "schedule": "0 */4 * * *"
-    }
-  ]
-}
-```
-- Le bot s'exécutera maintenant automatiquement toutes les 4 heures: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00
+**Solution**: ✅ **CORRIGÉ avec GitHub Actions**
+- **GitHub Actions** (`.github/workflows/bot-cron.yml`):
+  - Cron toutes les 4h: `0 */4 * * *` (00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC)
+  - Appelle `https://bot-polymarket-kappa.vercel.app/api/bot/execute`
+  - GRATUIT (2000 minutes/mois incluses)
+- **Vercel cron** (backup):
+  - Cron quotidien: `0 12 * * *` (12:00 UTC)
+  - Conforme aux limites du plan Hobby
+
+**Pourquoi GitHub Actions ?**
+- ✅ Gratuit (2000 min/mois)
+- ✅ Supporte crons multiples par jour
+- ✅ Logs détaillés
+- ✅ Exécution manuelle possible via GitHub UI
 
 ### 3. ❌ Positions fermées lors du scan manuel
 **Diagnostic**:
