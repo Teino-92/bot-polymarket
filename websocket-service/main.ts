@@ -8,6 +8,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN");
+const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID");
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -25,12 +27,64 @@ interface Position {
 let lastUpdate: Date | null = null;
 const clients: Set<WebSocket> = new Set();
 
+// Send Telegram notification
+async function sendTelegramNotification(
+  position: Position,
+  exitPrice: number,
+  pnl: number,
+  status: string
+): Promise<void> {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log("[TELEGRAM] Skipping notification - credentials not configured");
+    return;
+  }
+
+  try {
+    const emoji = pnl > 0 ? "💰" : "❌";
+    const reasonText = status === "STOPPED" ? "🔴 Stop-Loss atteint" : "🟢 Take-Profit atteint";
+    const pnlPercent = ((exitPrice - position.entry_price) / position.entry_price) * 100;
+
+    const message = `
+${emoji} *POSITION FERMÉE*
+
+${reasonText}
+
+📊 *Marché*: ${position.market_name}
+📍 *Prix d'entrée*: ${(position.entry_price * 100).toFixed(1)}%
+📍 *Prix de sortie*: ${(exitPrice * 100).toFixed(1)}%
+
+💵 *PnL*: ${pnl > 0 ? "+" : ""}${pnl.toFixed(2)}€ (${pnlPercent > 0 ? "+" : ""}${pnlPercent.toFixed(2)}%)
+
+🤖 Fermé automatiquement par le WebSocket Monitor
+`.trim();
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: "Markdown",
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("[TELEGRAM] Failed to send notification:", error);
+    } else {
+      console.log("[TELEGRAM] ✅ Notification sent");
+    }
+  } catch (error) {
+    console.error("[TELEGRAM] Error sending notification:", error);
+  }
+}
+
 // Fetch open positions from Supabase
 async function getOpenPositions(): Promise<Position[]> {
   const { data, error } = await supabase
-    .from("trades")
-    .select("*")
-    .eq("status", "OPEN");
+    .from("positions")
+    .select("*");
 
   if (error) {
     console.error("Error fetching positions:", error);
@@ -110,28 +164,55 @@ async function checkPositions() {
     if (shouldClose) {
       console.log(`🚨 ${closeReason} for ${position.market_name}!`);
 
-      // Update position in database
-      const { error } = await supabase
+      const pnl = (currentPrice - position.entry_price) * position.position_size_eur;
+      const status = closeReason === "Stop Loss Hit" ? "STOPPED" : "CLOSED";
+
+      // 1. Update trade in database
+      const { data: trade } = await supabase
         .from("trades")
-        .update({
-          status: "CLOSED",
-          exit_price: currentPrice,
-          closed_at: new Date().toISOString(),
-          pnl_eur:
-            (currentPrice - position.entry_price) * position.position_size_eur,
-        })
+        .select("*")
+        .eq("market_id", position.market_id)
+        .eq("status", "OPEN")
+        .single();
+
+      if (trade) {
+        const { error: tradeError } = await supabase
+          .from("trades")
+          .update({
+            status,
+            exit_price: currentPrice,
+            closed_at: new Date().toISOString(),
+            pnl_eur: pnl,
+          })
+          .eq("id", trade.id);
+
+        if (tradeError) {
+          console.error("Error updating trade:", tradeError);
+        }
+      }
+
+      // 2. Delete position from positions table
+      const { error: positionError } = await supabase
+        .from("positions")
+        .delete()
         .eq("id", position.id);
 
-      if (error) {
-        console.error("Error closing position:", error);
+      if (positionError) {
+        console.error("Error deleting position:", positionError);
       } else {
-        // Broadcast to all connected clients
+        console.log(`   Position closed: ${position.market_name} | PnL: ${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}€`);
+
+        // 3. Send Telegram notification
+        await sendTelegramNotification(position, currentPrice, pnl, status);
+
+        // 4. Broadcast to all connected clients
         const message = JSON.stringify({
           type: "position_closed",
           position: {
             ...position,
             exit_price: currentPrice,
             reason: closeReason,
+            pnl,
           },
         });
 
