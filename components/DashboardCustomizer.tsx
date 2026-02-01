@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useDashboardLayout, type DashboardSection } from '@/lib/hooks/useDashboardLayout';
 
 interface SectionConfig {
@@ -57,7 +58,103 @@ const SECTIONS: SectionConfig[] = [
 
 export default function DashboardCustomizer() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { layout, toggleSection, resetLayout } = useDashboardLayout();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const modal = isOpen ? (
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+    >
+      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Personnaliser le Dashboard
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Affiche ou masque les sections selon tes préférences
+              </p>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto flex-1">
+          <div className="space-y-3">
+            {SECTIONS.map((section) => {
+              const isVisible = layout[section.key] ?? true;
+              return (
+                <div
+                  key={section.key}
+                  className="flex items-start gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                >
+                  <div className="text-3xl mt-1">{section.icon}</div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {section.label}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {section.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => toggleSection(section.key)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                      isVisible
+                        ? 'bg-blue-600'
+                        : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isVisible ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <button
+            onClick={resetLayout}
+            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            Réinitialiser
+          </button>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Terminé
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -78,94 +175,8 @@ export default function DashboardCustomizer() {
         <span className="hidden sm:inline">Layout</span>
       </button>
 
-      {/* Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            {/* Header */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Personnaliser le Dashboard
-                  </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Affiche ou masque les sections selon tes préférences
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-3">
-                {SECTIONS.map((section) => {
-                  const isVisible = layout[section.key] ?? true;
-                  return (
-                    <div
-                      key={section.key}
-                      className="flex items-start gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-                    >
-                      <div className="text-3xl mt-1">{section.icon}</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
-                          {section.label}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {section.description}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => toggleSection(section.key)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-                          isVisible
-                            ? 'bg-blue-600'
-                            : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            isVisible ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <button
-                onClick={resetLayout}
-                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                Réinitialiser
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Terminé
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal rendered via Portal */}
+      {mounted && modal && createPortal(modal, document.body)}
     </>
   );
 }

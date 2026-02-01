@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { generateSignMessage } from '@/lib/crypto-auth';
+import { useAccount, useSignMessage, useConnect, useDisconnect } from 'wagmi';
 
 declare global {
   interface Window {
@@ -15,14 +16,112 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [hasMetaMask, setHasMetaMask] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'metamask' | 'walletconnect' | null>(null);
   const router = useRouter();
+
+  // Wagmi hooks for WalletConnect
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     // Check if MetaMask is installed
     setHasMetaMask(typeof window.ethereum !== 'undefined');
   }, []);
 
-  const handleWalletConnect = async () => {
+  // Auto-authenticate when WalletConnect connects
+  useEffect(() => {
+    if (isConnected && address && loginMethod === 'walletconnect') {
+      handleWalletConnectAuth(address);
+    }
+  }, [isConnected, address, loginMethod]);
+
+  const handleWalletConnectAuth = async (walletAddress: string) => {
+    setError('');
+    setLoading(true);
+    setStatus('Getting nonce...');
+
+    try {
+      // Get nonce from server
+      const nonceResponse = await fetch(`/api/auth/wallet?address=${walletAddress}`);
+      const { nonce, error: nonceError } = await nonceResponse.json();
+
+      if (nonceError) {
+        setError(nonceError);
+        setLoading(false);
+        disconnect();
+        return;
+      }
+
+      setStatus('Please sign the message in your wallet...');
+
+      // Generate message to sign
+      const message = generateSignMessage(walletAddress, nonce);
+
+      // Request signature using wagmi
+      const signature = await signMessageAsync({ message });
+
+      setStatus('Verifying signature...');
+
+      // Send signature to server for verification
+      const authResponse = await fetch('/api/auth/wallet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: walletAddress, signature, nonce }),
+      });
+
+      const authData = await authResponse.json();
+
+      if (!authResponse.ok) {
+        setError(authData.error || 'Authentication failed');
+        setLoading(false);
+        disconnect();
+        return;
+      }
+
+      // Success! Redirect to dashboard
+      setStatus('Success! Redirecting...');
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 500);
+    } catch (err: any) {
+      if (err.message?.includes('User rejected')) {
+        setError('You rejected the signature request');
+      } else {
+        setError(err.message || 'Authentication failed');
+      }
+      setLoading(false);
+      setLoginMethod(null);
+      disconnect();
+      setStatus('');
+    }
+  };
+
+  const handleWalletConnectButton = async () => {
+    setLoginMethod('walletconnect');
+    setError('');
+    setStatus('Opening WalletConnect...');
+
+    try {
+      // Find WalletConnect connector
+      const walletConnectConnector = connectors.find(c => c.id === 'walletConnect');
+      if (walletConnectConnector) {
+        connect({ connector: walletConnectConnector });
+      } else {
+        setError('WalletConnect not available');
+        setLoginMethod(null);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect');
+      setLoginMethod(null);
+      setStatus('');
+    }
+  };
+
+  const handleMetaMaskConnect = async () => {
+    setLoginMethod('metamask');
     if (!window.ethereum) {
       setError('Please install MetaMask or another Web3 wallet');
       return;
@@ -207,16 +306,73 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* MetaMask Button */}
+          {hasMetaMask && (
+            <button
+              onClick={handleMetaMaskConnect}
+              disabled={loading}
+              className={`w-full py-4 px-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center mb-3 ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-orange-600 hover:bg-orange-700 active:scale-95'
+              }`}
+            >
+              {loading && loginMethod === 'metamask' ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-6 h-6 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                  MetaMask
+                </>
+              )}
+            </button>
+          )}
+
+          {/* WalletConnect Button */}
           <button
-            onClick={handleWalletConnect}
-            disabled={loading || !hasMetaMask}
+            onClick={handleWalletConnectButton}
+            disabled={loading}
             className={`w-full py-4 px-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center ${
-              loading || !hasMetaMask
+              loading
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
             }`}
           >
-            {loading ? (
+            {loading && loginMethod === 'walletconnect' ? (
               <>
                 <svg
                   className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -238,24 +394,18 @@ export default function LoginPage() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Authenticating...
+                Connecting...
               </>
             ) : (
               <>
                 <svg
                   className="w-6 h-6 mr-2"
-                  fill="none"
-                  stroke="currentColor"
+                  fill="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
+                  <path d="M7.03 4.95c3.49-3.49 9.15-3.49 12.64 0l.42.42a.43.43 0 0 1 0 .61l-1.44 1.44a.22.22 0 0 1-.31 0l-.58-.58a6.39 6.39 0 0 0-9.03 0l-.62.62a.22.22 0 0 1-.31 0L6.36 6.02a.43.43 0 0 1 0-.61l.67-.46zm15.61 2.99l1.28 1.28c.17.17.17.44 0 .61l-5.77 5.77a.44.44 0 0 1-.62 0l-4.1-4.1a.11.11 0 0 0-.15 0l-4.1 4.1a.44.44 0 0 1-.62 0L2.79 9.83a.43.43 0 0 1 0-.61l1.28-1.28a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .63 0z" />
                 </svg>
-                Connect Wallet
+                WalletConnect (Mobile)
               </>
             )}
           </button>
@@ -277,11 +427,14 @@ export default function LoginPage() {
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 <p className="font-semibold mb-1">How it works:</p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Connect your wallet (MetaMask, etc.)</li>
+                  <li>Choose MetaMask (desktop) or WalletConnect (mobile)</li>
                   <li>Sign a message to prove ownership</li>
                   <li>Access granted if you're the authorized wallet</li>
                 </ol>
-                <p className="mt-2 text-yellow-600 dark:text-yellow-400 font-semibold">
+                <p className="mt-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                  📱 On mobile? Use WalletConnect with MetaMask/Trust Wallet
+                </p>
+                <p className="mt-1 text-yellow-600 dark:text-yellow-400 font-semibold">
                   No gas fees • No blockchain transactions • Fully secure
                 </p>
               </div>

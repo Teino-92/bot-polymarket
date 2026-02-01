@@ -1,6 +1,7 @@
 import { cookieStorage, createStorage, http } from 'wagmi';
 import { polygon } from 'wagmi/chains';
 import { createConfig } from 'wagmi';
+import { walletConnect, injected } from 'wagmi/connectors';
 
 // Get Project ID from https://cloud.walletconnect.com
 export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
@@ -20,6 +21,14 @@ const metadata = {
 // Wagmi config
 export const config = createConfig({
   chains: [polygon],
+  connectors: [
+    injected({ target: 'metaMask' }),
+    walletConnect({
+      projectId,
+      metadata,
+      showQrModal: true,
+    }),
+  ],
   transports: {
     [polygon.id]: http(),
   },
