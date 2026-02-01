@@ -37,11 +37,14 @@ interface PerformanceChartsProps {
 }
 
 export default function PerformanceCharts({ trades, period = 7 }: PerformanceChartsProps) {
+  // Ensure trades is always an array
+  const safeTrades = Array.isArray(trades) ? trades : [];
+
   // Préparer les données pour le graphique PnL au fil du temps
   const pnlOverTime = useMemo(() => {
-    if (!trades || trades.length === 0) return [];
+    if (!safeTrades || safeTrades.length === 0) return [];
 
-    const closedTrades = trades
+    const closedTrades = safeTrades
       .filter(t => t.status === 'CLOSED' && t.closed_at && t.pnl_eur !== undefined && t.pnl_eur !== null)
       .sort((a, b) => new Date(a.closed_at!).getTime() - new Date(b.closed_at!).getTime());
 
@@ -65,13 +68,13 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
     });
 
     return data;
-  }, [trades, period]);
+  }, [safeTrades, period]);
 
   // Préparer les données pour le graphique Win/Loss
   const winLossData = useMemo(() => {
-    if (!trades || trades.length === 0) return [];
+    if (!safeTrades || safeTrades.length === 0) return [];
 
-    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
+    const closed = safeTrades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
     const wins = closed.filter(t => t.pnl_eur! > 0).length;
     const losses = closed.filter(t => t.pnl_eur! <= 0).length;
 
@@ -79,13 +82,13 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
       { name: 'Gains', value: wins, color: '#10b981' },
       { name: 'Pertes', value: losses, color: '#ef4444' },
     ];
-  }, [trades]);
+  }, [safeTrades]);
 
   // Préparer les données pour le graphique par stratégie
   const strategyPerformance = useMemo(() => {
-    if (!trades || trades.length === 0) return [];
+    if (!safeTrades || safeTrades.length === 0) return [];
 
-    const closed = trades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
+    const closed = safeTrades.filter(t => t.status === 'CLOSED' && t.pnl_eur !== undefined && t.pnl_eur !== null);
 
     const holdTrades = closed.filter(t => t.strategy === 'HOLD');
     const flipTrades = closed.filter(t => t.strategy === 'FLIP');
@@ -115,11 +118,11 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
         trades: flipTrades.length,
       },
     ];
-  }, [trades]);
+  }, [safeTrades]);
 
   const COLORS = ['#10b981', '#ef4444'];
 
-  if (trades.length === 0) {
+  if (safeTrades.length === 0) {
     return (
       <div className="bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-xl border border-slate-300/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-2xl">
         <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-4">📈 Performance</h2>

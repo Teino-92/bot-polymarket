@@ -10,3 +10,4 @@ wg0.conf
 # Environment
 .env
 .env.local
+.env.local.development

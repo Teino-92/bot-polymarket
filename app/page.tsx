@@ -42,7 +42,7 @@ export default function Dashboard() {
   });
 
   // Filter only OPEN positions
-  const positions = allPositions?.filter(p => p.status === 'OPEN') || [];
+  const positions = Array.isArray(allPositions) ? allPositions.filter(p => p.status === 'OPEN') : [];
 
   return (
     <div className="min-h-screen">

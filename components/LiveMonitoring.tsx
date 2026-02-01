@@ -178,10 +178,12 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           </div>
           {/* Barre de progression */}
           <div className="mt-3 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-1000"
-              style={{ width: `${nextCron.percent}%` }}
-            />
+            {mounted && (
+              <div
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-1000"
+                style={{ width: `${nextCron.percent}%` }}
+              />
+            )}
           </div>
         </div>
 
@@ -220,18 +222,6 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
             <span>WebSocket disconnected - Stop-loss/take-profit are not monitored in real-time</span>
           </div>
         )}
-
-        {/* Success banner hidden - status visible in Live Monitoring card */}
-      </div>
-
-      {/* Info */}
-      <div className="mt-6 p-4 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-xl text-sm text-slate-700 dark:text-slate-400">
-        <p className="mb-2">
-          <strong className="text-slate-900 dark:text-white">Scan cycle:</strong> Every 4 hours (00:00, 04:00, 08:00, 12:00, 16:00, 20:00)
-        </p>
-        <p>
-          <strong className="text-slate-900 dark:text-white">Monitoring:</strong> Open positions are monitored continuously by the WebSocket service
-        </p>
       </div>
     </div>
   );

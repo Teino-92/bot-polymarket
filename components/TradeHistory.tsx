@@ -28,6 +28,9 @@ type FilterSide = 'all' | 'YES' | 'NO';
 type FilterPnL = 'all' | 'profit' | 'loss';
 
 export default function TradeHistory({ trades }: TradeHistoryProps) {
+  // Ensure trades is always an array
+  const safeTrades = Array.isArray(trades) ? trades : [];
+
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterStrategy, setFilterStrategy] = useState<FilterStrategy>('all');
   const [filterSide, setFilterSide] = useState<FilterSide>('all');
@@ -37,7 +40,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
 
   // Filtrer et trier les trades
   const filteredTrades = useMemo(() => {
-    let filtered = [...trades];
+    let filtered = [...safeTrades];
 
     // Filtre par statut
     if (filterStatus !== 'all') {
@@ -78,7 +81,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
     }
 
     return filtered;
-  }, [trades, filterStatus, filterStrategy, filterSide, filterPnL, searchTerm, sortBy]);
+  }, [safeTrades, filterStatus, filterStrategy, filterSide, filterPnL, searchTerm, sortBy]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
