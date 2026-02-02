@@ -16,7 +16,7 @@ export default function FlipBreakevenCalculator() {
     // Cost total
     const totalCost = buy * size;
 
-    // Pour être breakeven après flip
+    // To break even after flip
     let breakevenPrice: number;
     let targetProfitPrice: number;
 
@@ -64,7 +64,7 @@ export default function FlipBreakevenCalculator() {
           Calcule à quel prix tu dois vendre après un flip pour être breakeven ou profitable.
           <br />
           <span className="text-xs text-purple-600 dark:text-purple-400">
-            💡 Stratégie FLIP: Acheter un côté puis revendre l'autre côté quand les odds changent
+            💡 FLIP Strategy: Acheter un côté puis revendre l'autre côté quand les odds changent
           </span>
         </p>
       </div>
@@ -75,7 +75,7 @@ export default function FlipBreakevenCalculator() {
           {/* Side Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Côté Initial Acheté
+              Initial Side Bought
             </label>
             <div className="flex gap-2">
               <button
@@ -100,13 +100,13 @@ export default function FlipBreakevenCalculator() {
               </button>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Le côté que tu as acheté initialement
+              The side you bought initially
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Prix d'Achat Initial
+              Initial Purchase Price
             </label>
             <input
               type="number"
@@ -119,7 +119,7 @@ export default function FlipBreakevenCalculator() {
               step="0.01"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Prix auquel tu as acheté {side}
+              Price at which you bought {side}
             </p>
           </div>
 
@@ -137,13 +137,13 @@ export default function FlipBreakevenCalculator() {
               step="10"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Montant investi initialement
+              Amount initially invested
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Profit Cible (€)
+              Target Profit (€)
             </label>
             <input
               type="number"
@@ -155,14 +155,14 @@ export default function FlipBreakevenCalculator() {
               step="1"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Profit que tu veux réaliser sur le flip
+              Profit you want to make on the flip
             </p>
           </div>
 
           {/* Example Scenario */}
           <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
             <h4 className="text-xs font-semibold text-purple-900 dark:text-purple-300 mb-2">
-              📖 Scénario
+              📖 Scenario
             </h4>
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p>1️⃣ Tu achètes <span className="font-semibold">{side}</span> à <span className="font-semibold">{buyPrice}</span></p>
@@ -182,7 +182,7 @@ export default function FlipBreakevenCalculator() {
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Coût Total Initial</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Initial Total Cost</p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
                   {result.totalCost}€
                 </p>
@@ -190,7 +190,7 @@ export default function FlipBreakevenCalculator() {
 
               <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Prix Breakeven 💰
+                  Breakeven Price 💰
                 </p>
                 <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                   {result.breakevenPrice}
@@ -203,7 +203,7 @@ export default function FlipBreakevenCalculator() {
               {result.isValidTarget && (
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20 -mx-4 px-4 pb-4 rounded-b-lg">
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Prix pour {targetProfit}€ de profit 🎯
+                    Price for {targetProfit}€ profit 🎯
                   </p>
                   <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                     {result.targetProfitPrice}
@@ -219,7 +219,7 @@ export default function FlipBreakevenCalculator() {
           {/* Trading Range */}
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              📈 Zone de Trading
+              📈 Trading Zone
             </h4>
 
             <div className="space-y-3">

@@ -2,8 +2,8 @@ name: Bot Polymarket - Cron Job
 
 on:
   schedule:
-    # Runs every 2 hours: 00:00, 02:00, 04:00, 06:00, 08:00, 10:00, 12:00, 14:00, 16:00, 18:00, 20:00, 22:00 UTC
-    - cron: '0 */2 * * *'
+    # Runs every 30 minutes: More frequent monitoring for Take-Profit and Stop-Loss triggers
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Permet exécution manuelle
 
 jobs:

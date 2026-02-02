@@ -82,9 +82,9 @@ export default function ManualControls({
 
   return (
     <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold text-white mb-6">⚙️ Contrôles Manuels</h2>
+      <h2 className="text-xl font-bold text-white mb-6">⚙️ Manual Controls</h2>
 
-      {/* Actions rapides */}
+      {/* Quick actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {/* Bouton Scan */}
         <button
@@ -99,12 +99,12 @@ export default function ManualControls({
           {isScanning ? (
             <>
               <span className="animate-spin">🔄</span>
-              Scan en cours...
+              Scanning...
             </>
           ) : (
             <>
               <span>🔍</span>
-              Scanner maintenant
+              Scan now
             </>
           )}
         </button>
@@ -122,17 +122,17 @@ export default function ManualControls({
           {isTogglingPause ? (
             <>
               <span className="animate-spin">🔄</span>
-              Changement...
+              Changing...
             </>
           ) : config.isPaused ? (
             <>
               <span>▶️</span>
-              Reprendre le bot
+              Resume bot
             </>
           ) : (
             <>
               <span>⏸️</span>
-              Mettre en pause
+              Pause bot
             </>
           )}
         </button>
@@ -147,7 +147,7 @@ export default function ManualControls({
         </div>
       )}
 
-      {/* Réglages avancés */}
+      {/* Advanced settings */}
       <div className="border-t border-gray-700 pt-6">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
@@ -156,18 +156,18 @@ export default function ManualControls({
           <span className={`transform transition-transform ${showAdvanced ? 'rotate-90' : ''}`}>
             ▶
           </span>
-          <span className="font-semibold">Réglages avancés</span>
+          <span className="font-semibold">Advanced settings</span>
         </button>
 
         {showAdvanced && (
           <div className="space-y-6">
-            {/* Stratégie HOLD */}
+            {/* HOLD Strategy */}
             <div className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3">💎 Stratégie HOLD</h3>
+              <h3 className="text-white font-semibold mb-3">💎 HOLD Strategy</h3>
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
-                    HVS Minimum (€)
+                    Minimum HVS (€)
                   </label>
                   <input
                     type="number"
@@ -177,19 +177,19 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Score minimum pour ouvrir une position HOLD
+                    Minimum score to open a HOLD position
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Stratégie FLIP */}
+            {/* FLIP Strategy */}
             <div className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3">🔄 Stratégie FLIP</h3>
+              <h3 className="text-white font-semibold mb-3">🔄 FLIP Strategy</h3>
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
-                    FlipEV Minimum (€)
+                    Minimum FlipEV (€)
                   </label>
                   <input
                     type="number"
@@ -199,7 +199,7 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    EV minimum pour ouvrir une position FLIP
+                    Minimum EV to open a FLIP position
                   </p>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function ManualControls({
 
             {/* Risk Management */}
             <div className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3">🛡️ Gestion du Risque</h3>
+              <h3 className="text-white font-semibold mb-3">🛡️ Risk Management</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
@@ -223,7 +223,7 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Perte maximale avant sortie automatique
+                    Maximum loss before automatic exit
                   </p>
                 </div>
 
@@ -241,7 +241,7 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Gain cible pour sortie automatique (FLIP uniquement)
+                    Target gain for automatic exit (FLIP only)
                   </p>
                 </div>
               </div>
@@ -249,7 +249,7 @@ export default function ManualControls({
 
             {/* Position Sizing */}
             <div className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-3">💰 Taille des Positions</h3>
+              <h3 className="text-white font-semibold mb-3">💰 Position Sizing</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
@@ -264,13 +264,13 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Nombre maximum de positions simultanées
+                    Maximum number of simultaneous positions
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
-                    Taille Max par Position (€)
+                    Max Size per Position (€)
                   </label>
                   <input
                     type="number"
@@ -282,7 +282,7 @@ export default function ManualControls({
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Capital maximum par trade
+                    Maximum capital per trade
                   </p>
                 </div>
               </div>
@@ -301,10 +301,10 @@ export default function ManualControls({
               >
                 {isSaving ? (
                   <>
-                    <span className="animate-spin">🔄</span> Sauvegarde...
+                    <span className="animate-spin">🔄</span> Saving...
                   </>
                 ) : (
-                  <>💾 Sauvegarder les modifications</>
+                  <>💾 Save changes</>
                 )}
               </button>
             )}

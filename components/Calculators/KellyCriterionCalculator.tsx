@@ -20,7 +20,7 @@ export default function KellyCriterionCalculator() {
     // Half-Kelly (plus conservateur)
     const halfKelly = kellyPercent / 2;
 
-    // Position size en EUR
+    // Position size in EUR
     const bank = parseFloat(bankroll);
     const fullKellySize = (kellyPercent / 100) * bank;
     const halfKellySize = (halfKelly / 100) * bank;
@@ -43,10 +43,10 @@ export default function KellyCriterionCalculator() {
           🎯 Kelly Criterion Calculator
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Calcule la taille de position optimale pour maximiser la croissance long terme de ton capital.
+          Calculates the optimal position size to maximize long-term capital growth.
           <br />
           <span className="text-xs text-yellow-600 dark:text-yellow-400">
-            ⚠️ Recommandation: Utilise Half-Kelly (50%) pour réduire la volatilité
+            ⚠️ Recommendation: Use Half-Kelly (50%) to reduce volatility
           </span>
         </p>
       </div>
@@ -69,13 +69,13 @@ export default function KellyCriterionCalculator() {
               step="0.1"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Pourcentage de trades gagnants historiques
+              Historical winning trades percentage
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Gain Moyen (€)
+              Average Win (€)
             </label>
             <input
               type="number"
@@ -87,13 +87,13 @@ export default function KellyCriterionCalculator() {
               step="0.1"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Gain moyen par trade gagnant
+              Average profit per winning trade
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Perte Moyenne (€)
+              Average Loss (€)
             </label>
             <input
               type="number"
@@ -105,7 +105,7 @@ export default function KellyCriterionCalculator() {
               step="0.1"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Perte moyenne par trade perdant (valeur positive)
+              Average loss per losing trade (positive value)
             </p>
           </div>
 
@@ -123,7 +123,7 @@ export default function KellyCriterionCalculator() {
               step="10"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Ton capital de trading total
+              Your total trading capital
             </p>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function KellyCriterionCalculator() {
         <div className="space-y-4">
           <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">
-              📊 Résultats
+              📊 Results
             </h3>
 
             {result.isValid ? (
@@ -149,7 +149,7 @@ export default function KellyCriterionCalculator() {
 
                 <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
-                    Half Kelly <span className="text-green-600 dark:text-green-400">✓ Recommandé</span>
+                    Half Kelly <span className="text-green-600 dark:text-green-400">✓ Recommended</span>
                   </p>
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {result.halfKelly}%

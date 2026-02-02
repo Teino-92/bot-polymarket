@@ -53,7 +53,7 @@ export default function PositionSizingCalculator() {
           Calcule la taille de position optimale basée sur ton capital et le risque que tu veux prendre.
           <br />
           <span className="text-xs text-blue-600 dark:text-blue-400">
-            💡 Règle d'or: Ne jamais risquer plus de 1-2% de ton capital par trade
+            💡 Golden rule: Never risk more than 1-2% of your capital per trade
           </span>
         </p>
       </div>
@@ -104,7 +104,7 @@ export default function PositionSizingCalculator() {
               step="10"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Ton capital de trading total
+              Your total trading capital
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export default function PositionSizingCalculator() {
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              % de ton capital que tu es prêt à perdre sur ce trade
+              % of your capital you're willing to lose on this trade
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export default function PositionSizingCalculator() {
               step="0.01"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Prix du stop-loss
+              Stop-loss price
             </p>
           </div>
         </div>
@@ -183,13 +183,13 @@ export default function PositionSizingCalculator() {
             <>
               <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">
-                  📊 Taille de Position Recommandée
+                  📊 Taille de Position Recommendede
                 </h3>
 
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Montant à Risquer
+                      Amount to Risk
                     </p>
                     <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                       {result.riskAmount}€
@@ -201,7 +201,7 @@ export default function PositionSizingCalculator() {
 
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Risque par Unité
+                      Risk per Unit
                     </p>
                     <p className="text-lg font-mono text-gray-900 dark:text-white">
                       {result.riskPerUnit}€
@@ -219,13 +219,13 @@ export default function PositionSizingCalculator() {
 
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Capital Requis
+                      Required Capital
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {result.capitalNeeded}€
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      {((parseFloat(result.capitalNeeded) / parseFloat(bankroll)) * 100).toFixed(1)}% de ton bankroll
+                      {((parseFloat(result.capitalNeeded) / parseFloat(bankroll)) * 100).toFixed(1)}% of your bankroll
                     </p>
                   </div>
                 </div>
@@ -242,19 +242,19 @@ export default function PositionSizingCalculator() {
                 }`}
               >
                 <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Niveau de Risque
+                  Risk Level
                 </h4>
                 {parseFloat(riskPercent) <= 2 ? (
                   <p className="text-sm text-green-600 dark:text-green-400">
-                    ✓ Conservateur - Excellent pour la préservation du capital
+                    ✓ Conservative - Excellent for capital preservation
                   </p>
                 ) : parseFloat(riskPercent) <= 5 ? (
                   <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                    ⚠️ Modéré - Attention aux séries de pertes
+                    ⚠️ Moderate - Watch out for losing streaks
                   </p>
                 ) : (
                   <p className="text-sm text-red-600 dark:text-red-400">
-                    ❌ Agressif - Risque élevé de grosse perte
+                    ❌ Aggressive - High risk of large loss
                   </p>
                 )}
               </div>
@@ -262,7 +262,7 @@ export default function PositionSizingCalculator() {
           ) : (
             <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-red-900 dark:text-red-300 mb-2">
-                ⚠️ Configuration Invalide
+                ⚠️ Invalid Configuration
               </h3>
               <p className="text-sm text-red-600 dark:text-red-400">
                 {parseFloat(result.capitalNeeded) > parseFloat(bankroll)
@@ -288,7 +288,7 @@ export default function PositionSizingCalculator() {
           {/* Example Scenarios */}
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              💡 Impact de Série de Pertes
+              💡 Impact de Série de Losses
             </h4>
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
               <div>

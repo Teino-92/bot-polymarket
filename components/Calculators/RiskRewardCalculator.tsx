@@ -36,7 +36,7 @@ export default function RiskRewardCalculator() {
       reward: reward.toFixed(2),
       ratio: ratio.toFixed(2),
       breakEvenWinRate: breakEvenWinRate.toFixed(1),
-      isGood: ratio >= 2, // R:R >= 2:1 est considéré bon
+      isGood: ratio >= 2, // R:R >= 2:1 is considered good
     };
   };
 
@@ -49,7 +49,7 @@ export default function RiskRewardCalculator() {
           ⚖️ Risk/Reward Calculator
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Calcule le ratio risque/récompense de ton trade. Un bon trade a généralement un R:R ≥ 2:1.
+          Calculates the risk/reward ratio of your trade. A good trade typically has R:R ≥ 2:1.
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export default function RiskRewardCalculator() {
               step="0.01"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Prix d'entrée prévu (0-1)
+              Expected entry price (0-1)
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export default function RiskRewardCalculator() {
               step="0.01"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Prix où tu couperas ta perte
+              Price where you'll cut your loss
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export default function RiskRewardCalculator() {
               step="0.01"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Prix où tu prendras ton profit
+              Price where you'll take your profit
             </p>
           </div>
 
@@ -156,7 +156,7 @@ export default function RiskRewardCalculator() {
               step="10"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Taille de la position en euros
+              Position size in euros
             </p>
           </div>
         </div>
@@ -171,19 +171,19 @@ export default function RiskRewardCalculator() {
             }`}
           >
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-              📊 Résultats
+              📊 Results
             </h3>
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Risque Maximum</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Maximum Risk</p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   {result.risk}€
                 </p>
               </div>
 
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Récompense Potentielle</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Potential Reward</p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {result.reward}€
                 </p>
@@ -202,24 +202,24 @@ export default function RiskRewardCalculator() {
                 </p>
                 {result.isGood ? (
                   <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    ✓ Excellent ratio risque/récompense
+                    ✓ Excellent risk/reward ratio
                   </p>
                 ) : (
                   <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                    ⚠️ Ratio faible. Vise au moins 1:2
+                    ⚠️ Low ratio. Aim for at least 1:2
                   </p>
                 )}
               </div>
 
               <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Win Rate Nécessaire (Break-even)
+                  Required Win Rate (Break-even)
                 </p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
                   {result.breakEvenWinRate}%
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Tu dois gagner au moins {result.breakEvenWinRate}% du temps pour être profitable
+                  You must win at least {result.breakEvenWinRate}% of the time to be profitable
                 </p>
               </div>
             </div>
@@ -228,7 +228,7 @@ export default function RiskRewardCalculator() {
           {/* Guide */}
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              📚 Guide R:R
+              📚 R:R Guide
             </h4>
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p>• 1:3 ou plus = Excellent (33% win rate suffit)</p>
@@ -241,7 +241,7 @@ export default function RiskRewardCalculator() {
           {/* Visual representation */}
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              📈 Visualisation
+              📈 Visualization
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2">

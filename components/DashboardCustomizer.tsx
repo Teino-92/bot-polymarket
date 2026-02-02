@@ -16,7 +16,7 @@ const SECTIONS: SectionConfig[] = [
     key: 'liveMonitoring',
     label: 'Live Monitoring',
     icon: '📡',
-    description: 'Suivi en temps réel des WebSocket et status du bot',
+    description: 'Real-time WebSocket tracking and bot status',
   },
   {
     key: 'stats',
@@ -28,23 +28,23 @@ const SECTIONS: SectionConfig[] = [
     key: 'pnlChart',
     label: 'Graphique PnL',
     icon: '📈',
-    description: 'Évolution du profit & loss sur 7 jours',
+    description: 'Profit & loss evolution over 7 days',
   },
   {
     key: 'performanceCharts',
     label: 'Analyse de Performance',
     icon: '📉',
-    description: 'Graphiques détaillés de performance (7/30 jours)',
+    description: 'Graphiques détaillés de performance (7/30 days)',
   },
   {
     key: 'activePositions',
-    label: 'Positions Actives',
+    label: 'Active Positions',
     icon: '💼',
     description: 'Liste des positions en cours avec bouton close manuel',
   },
   {
     key: 'tradeHistory',
-    label: 'Historique des Trades',
+    label: 'Trade History',
     icon: '📜',
     description: 'Table complète de tous les trades effectués',
   },
@@ -52,7 +52,7 @@ const SECTIONS: SectionConfig[] = [
     key: 'opportunities',
     label: 'Top Opportunities',
     icon: '🎯',
-    description: 'Meilleures opportunités de trading détectées',
+    description: 'Best trading opportunities detected',
   },
 ];
 
@@ -76,10 +76,10 @@ export default function DashboardCustomizer() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Personnaliser le Dashboard
+                Customize Dashboard
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Affiche ou masque les sections selon tes préférences
+                Show or hide sections according to your preferences
               </p>
             </div>
             <button
@@ -143,13 +143,13 @@ export default function DashboardCustomizer() {
             onClick={resetLayout}
             className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
-            Réinitialiser
+            Reset
           </button>
           <button
             onClick={() => setIsOpen(false)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Terminé
+            Done
           </button>
         </div>
       </div>
@@ -162,7 +162,7 @@ export default function DashboardCustomizer() {
       <button
         onClick={() => setIsOpen(true)}
         className="px-3 sm:px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm sm:text-base rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
-        title="Personnaliser le dashboard"
+        title="Customize dashboard"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

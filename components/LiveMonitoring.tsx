@@ -17,7 +17,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
     setMounted(true);
   }, []);
 
-  // Mettre à jour l'heure toutes les secondes
+  // Mettre à day l'hour toutes les seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -58,7 +58,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
       }
     };
 
-    // Premier check après 1 seconde pour éviter les problèmes au chargement
+    // Premier check après 1 second pour éviter les problèmes au chargement
     const initialTimeout = setTimeout(() => {
       checkWebSocket();
     }, 1000);
@@ -91,7 +91,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
 
     return {
       text: `${hours_left}h ${minutes_left}m ${seconds_left}s`,
-      nextTime: nextCron.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      nextTime: nextCron.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       percent: ((4 * 60 * 60 * 1000 - diff) / (4 * 60 * 60 * 1000)) * 100,
     };
   };
@@ -105,9 +105,9 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
 
-    if (hours > 0) return `il y a ${hours}h`;
-    if (minutes > 0) return `il y a ${minutes}min`;
-    return `il y a ${seconds}s`;
+    if (hours > 0) return `ago ${hours}h`;
+    if (minutes > 0) return `ago ${minutes}min`;
+    return `ago ${seconds}s`;
   };
 
   return (
@@ -164,7 +164,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           </div>
         </div>
 
-        {/* Prochain Cron */}
+        {/* Next Cron */}
         <div className="bg-slate-100/50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-300/50 dark:border-slate-700/50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-slate-600 dark:text-slate-400 text-sm">Next Scan</span>
@@ -187,7 +187,7 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
           </div>
         </div>
 
-        {/* Dernière mise à jour */}
+        {/* Last update */}
         <div className="bg-slate-100/50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-300/50 dark:border-slate-700/50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-slate-600 dark:text-slate-400 text-sm">Last Activity</span>

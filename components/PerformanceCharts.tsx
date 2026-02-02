@@ -59,7 +59,7 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
       if (tradeDate >= cutoffDate) {
         cumulativePnL += trade.pnl_eur!;
         data.push({
-          date: tradeDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+          date: tradeDate.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' }),
           pnl: trade.pnl_eur!,
           cumulative: cumulativePnL,
           volume: trade.position_size_eur || 0,
@@ -79,8 +79,8 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
     const losses = closed.filter(t => t.pnl_eur! <= 0).length;
 
     return [
-      { name: 'Gains', value: wins, color: '#10b981' },
-      { name: 'Pertes', value: losses, color: '#ef4444' },
+      { name: 'Wins', value: wins, color: '#10b981' },
+      { name: 'Losses', value: losses, color: '#ef4444' },
     ];
   }, [safeTrades]);
 
@@ -156,7 +156,7 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
               <Line
                 type="monotone"
                 dataKey="cumulative"
-                name="PnL Cumulatif (€)"
+                name="Cumulative PnL (€)"
                 stroke="#10b981"
                 strokeWidth={2}
                 dot={{ fill: '#10b981' }}
@@ -164,7 +164,7 @@ export default function PerformanceCharts({ trades, period = 7 }: PerformanceCha
               <Line
                 type="monotone"
                 dataKey="pnl"
-                name="PnL par trade (€)"
+                name="PnL per trade (€)"
                 stroke="#3b82f6"
                 strokeWidth={2}
                 dot={{ fill: '#3b82f6' }}
