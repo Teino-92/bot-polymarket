@@ -2,8 +2,8 @@ name: Bot Polymarket - Cron Job
 
 on:
   schedule:
-    # Runs every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
-    - cron: '0 */4 * * *'
+    # Runs every 2 hours: 00:00, 02:00, 04:00, 06:00, 08:00, 10:00, 12:00, 14:00, 16:00, 18:00, 20:00, 22:00 UTC
+    - cron: '0 */2 * * *'
   workflow_dispatch: # Permet exécution manuelle
 
 jobs:
@@ -12,12 +12,15 @@ jobs:
 
     steps:
       - name: Execute Bot
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           echo "🤖 Executing Polymarket Bot..."
 
-          # Call the Vercel API endpoint
+          # Call the Vercel API endpoint with authentication
           response=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
             https://bot-polymarket-kappa.vercel.app/api/bot/execute)
 
           # Extract HTTP status code

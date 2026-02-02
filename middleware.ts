@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 const publicPaths = [
   '/login',
   '/api/auth/wallet',
+  '/api/bot/execute',        // Bot cron execution (protected by CRON_SECRET)
   '/api/telegram/webhook',  // Telegram webhooks need to be public
   '/api/websocket/health',  // WebSocket health check proxy (needs to be accessible for monitoring)
 ];

@@ -10,10 +10,33 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Route principale d'exécution du bot
- * Appelée par cron toutes les 4 heures (ou manuellement)
+ * Appelée par cron toutes les 1-2 heures (ou manuellement)
+ *
+ * Authentification: Requiert header Authorization: Bearer <CRON_SECRET>
  */
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    // Verify cron secret for automated executions
+    const authHeader = request.headers.get('authorization');
+    const expectedSecret = process.env.CRON_SECRET;
+
+    if (!expectedSecret) {
+      console.warn('⚠️ CRON_SECRET not configured - cron authentication disabled');
+    } else if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized', reason: 'Missing or invalid authorization header' },
+        { status: 401 }
+      );
+    } else {
+      const token = authHeader.substring(7);
+      if (token !== expectedSecret) {
+        return NextResponse.json(
+          { error: 'Unauthorized', reason: 'Invalid cron secret' },
+          { status: 401 }
+        );
+      }
+    }
+
     console.log('🤖 [BOT EXECUTE] Starting bot execution...');
     console.log(`   Simulation mode: ${polymarketClient.isSimulation() ? 'YES' : 'NO'}`);
 
