@@ -2,11 +2,5 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "crons": [
-    {
-      "path": "/api/bot/execute",
-      "schedule": "0 12 * * *"
-    }
-  ]
+  "regions": ["iad1"]
 }
