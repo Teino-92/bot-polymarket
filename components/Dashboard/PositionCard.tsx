@@ -59,11 +59,24 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
           </span>
         </div>
 
-        {/* Market Name */}
+        {/* Market Name with Link */}
         <div className="mt-14 mb-4">
-          <h3 className="text-slate-900 dark:text-white font-bold text-base line-clamp-2 leading-tight">
-            {position.market_name}
-          </h3>
+          <a
+            href={`https://polymarket.com/event/${position.market_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/link inline-block"
+          >
+            <h3 className="text-slate-900 dark:text-white font-bold text-base line-clamp-2 leading-tight group-hover/link:text-blue-600 dark:group-hover/link:text-blue-400 transition-colors">
+              {position.market_name}
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 mt-1 group-hover/link:text-blue-600 dark:group-hover/link:text-blue-400 transition-colors">
+              <span>View on Polymarket</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </div>
+          </a>
         </div>
 
         {/* Probability Indicator - Polymarket style */}
