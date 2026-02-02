@@ -140,9 +140,9 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
             className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
           >
-            <option value="all">📊 Tous les statuts</option>
-            <option value="OPEN">🟢 Ouverts</option>
-            <option value="CLOSED">🔴 Fermés</option>
+            <option value="all">📊 All statuses</option>
+            <option value="OPEN">🟢 Open</option>
+            <option value="CLOSED">🔴 Closed</option>
           </select>
 
           {/* Stratégie */}
@@ -151,7 +151,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             onChange={(e) => setFilterStrategy(e.target.value as FilterStrategy)}
             className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
           >
-            <option value="all">🎯 Toutes stratégies</option>
+            <option value="all">🎯 All strategies</option>
             <option value="HOLD">💎 HOLD</option>
             <option value="FLIP">🔄 FLIP</option>
           </select>
@@ -162,7 +162,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             onChange={(e) => setFilterSide(e.target.value as FilterSide)}
             className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
           >
-            <option value="all">⚖️ Tous les côtés</option>
+            <option value="all">⚖️ All sides</option>
             <option value="YES">✅ YES</option>
             <option value="NO">❌ NO</option>
           </select>
@@ -173,9 +173,9 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
             onChange={(e) => setFilterPnL(e.target.value as FilterPnL)}
             className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
           >
-            <option value="all">💰 Tous les PnL</option>
-            <option value="profit">📈 Profits uniquement</option>
-            <option value="loss">📉 Pertes uniquement</option>
+            <option value="all">💰 All PnL</option>
+            <option value="profit">📈 Profits only</option>
+            <option value="loss">📉 Losses only</option>
           </select>
         </div>
 
@@ -215,16 +215,16 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
           <table className="w-full text-sm text-left text-slate-700 dark:text-slate-300">
             <thead className="text-xs uppercase bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Statut</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Marché</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Stratégie</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Status</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Market</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Strategy</th>
                 <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Side</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Prix Entrée</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Prix Sortie</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Taille</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Entry Price</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Exit Price</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Size</th>
                 <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">PnL</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Durée</th>
-                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Date Ouverture</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Duration</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Open Date</th>
               </tr>
             </thead>
             <tbody>

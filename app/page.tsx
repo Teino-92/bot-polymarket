@@ -56,13 +56,20 @@ export default function Dashboard() {
 
             <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-4">
-                {/* Logo/Icon */}
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-                  <span className="text-2xl font-bold text-white">Đ</span>
+                {/* Logo/Icon - Trading Chart */}
+                <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg overflow-hidden">
+                  {/* Chart bars animated */}
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 17L9 11L13 15L21 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M21 7L21 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    <path d="M21 7L16 7" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  </svg>
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent animate-pulse" />
                 </div>
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                    Trading Dashboard
+                    Dashboard
                   </h1>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Powered by AI • Real-time Analytics</p>
                 </div>
