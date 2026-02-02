@@ -196,10 +196,16 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             <span>{position.days_until_resolution} days until resolution</span>
           </div>
-          <div className="flex items-center gap-1">
+          <a
+            href={`https://polymarket.com/event/${position.market_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-blue-500 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            title="View on Polymarket"
+          >
             <span>📊</span>
             <span className="font-mono">{position.id.slice(0, 8)}</span>
-          </div>
+          </a>
         </div>
 
         {/* Close Button */}
