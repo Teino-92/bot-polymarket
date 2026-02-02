@@ -180,7 +180,6 @@ export async function POST(request: Request) {
     // Envoyer notification Telegram
     await notifyPositionOpened({
       marketName: best.marketName,
-      side,
       strategy: best.action,
       entryPrice: best.entryPrice,
       size: BOT_CONFIG.maxPositionSizeEur,
