@@ -205,7 +205,7 @@ export default function Dashboard() {
               <span className="text-xl">💼</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400">
-              Active Positions ({positions.length}/2)
+              Active Positions ({positions.length}/{config?.maxPositions || 2})
             </h2>
           </div>
 
