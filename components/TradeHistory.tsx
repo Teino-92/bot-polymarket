@@ -209,8 +209,8 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
         {filteredTrades.length} trade{filteredTrades.length > 1 ? 's' : ''} found
       </div>
 
-      {/* Tableau - Scrollable container on mobile */}
-      <div className="overflow-x-auto max-h-[400px] md:max-h-none overflow-y-auto md:overflow-y-visible">
+      {/* Tableau - Scrollable container with max height showing ~3-4 trades */}
+      <div className="overflow-x-auto max-h-[400px] overflow-y-auto rounded-xl border border-slate-300 dark:border-slate-700">
         {filteredTrades.length > 0 ? (
           <table className="w-full text-sm text-left text-slate-700 dark:text-slate-300">
             <thead className="text-xs uppercase bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 sticky top-0 z-10">
