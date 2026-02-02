@@ -388,7 +388,7 @@ export default function LoginPage() {
                         d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                       />
                     </svg>
-                    {walletName}
+                    Connect your wallet
                   </>
                 )}
               </button>
@@ -449,7 +449,7 @@ export default function LoginPage() {
                 >
                   <path d="M7.03 4.95c3.49-3.49 9.15-3.49 12.64 0l.42.42a.43.43 0 0 1 0 .61l-1.44 1.44a.22.22 0 0 1-.31 0l-.58-.58a6.39 6.39 0 0 0-9.03 0l-.62.62a.22.22 0 0 1-.31 0L6.36 6.02a.43.43 0 0 1 0-.61l.67-.46zm15.61 2.99l1.28 1.28c.17.17.17.44 0 .61l-5.77 5.77a.44.44 0 0 1-.62 0l-4.1-4.1a.11.11 0 0 0-.15 0l-4.1 4.1a.44.44 0 0 1-.62 0L2.79 9.83a.43.43 0 0 1 0-.61l1.28-1.28a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .63 0z" />
                 </svg>
-                {isMobile ? 'WalletConnect (Recommended)' : 'WalletConnect'}
+                Connect your wallet
               </>
             )}
           </button>
@@ -476,7 +476,7 @@ export default function LoginPage() {
                   <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                   <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                 </svg>
-                Install Rabby Wallet
+                Install a wallet
               </a>
             </div>
           )}

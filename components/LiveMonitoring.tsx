@@ -72,27 +72,27 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
     };
   }, []);
 
-  // Calculer le temps jusqu'au prochain cron (toutes les 4h : 00:00, 04:00, 08:00, 12:00, 16:00, 20:00)
+  // Calculate time until next cron (every 30 minutes: :00 and :30)
   const getNextCronTime = () => {
     const now = currentTime;
-    const hours = now.getHours();
-    const nextCronHour = Math.ceil((hours + 1) / 4) * 4; // Prochain multiple de 4
+    const minutes = now.getMinutes();
     const nextCron = new Date(now);
-    nextCron.setHours(nextCronHour % 24, 0, 0, 0);
 
-    if (nextCronHour >= 24) {
-      nextCron.setDate(nextCron.getDate() + 1);
+    // Next cron is either at :00 or :30
+    if (minutes < 30) {
+      nextCron.setMinutes(30, 0, 0);
+    } else {
+      nextCron.setHours(nextCron.getHours() + 1, 0, 0, 0);
     }
 
     const diff = nextCron.getTime() - now.getTime();
-    const hours_left = Math.floor(diff / (1000 * 60 * 60));
-    const minutes_left = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const minutes_left = Math.floor(diff / (1000 * 60));
     const seconds_left = Math.floor((diff % (1000 * 60)) / 1000);
 
     return {
-      text: `${hours_left}h ${minutes_left}m ${seconds_left}s`,
+      text: `${minutes_left}m ${seconds_left}s`,
       nextTime: nextCron.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      percent: ((4 * 60 * 60 * 1000 - diff) / (4 * 60 * 60 * 1000)) * 100,
+      percent: ((30 * 60 * 1000 - diff) / (30 * 60 * 1000)) * 100,
     };
   };
 
