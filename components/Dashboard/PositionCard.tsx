@@ -62,7 +62,7 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
         {/* Market Name with Link */}
         <div className="mt-14 mb-4">
           <a
-            href={`https://polymarket.com/event/${position.market_id}`}
+            href={`https://polymarket.com/search?q=${encodeURIComponent(position.market_name)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="group/link inline-block"
@@ -71,9 +71,9 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
               {position.market_name}
             </h3>
             <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 mt-1 group-hover/link:text-blue-600 dark:group-hover/link:text-blue-400 transition-colors">
-              <span>View on Polymarket</span>
+              <span>Search on Polymarket</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </a>
@@ -197,11 +197,11 @@ export function PositionCard({ position, onClose }: PositionCardProps) {
             <span>{position.days_until_resolution} days until resolution</span>
           </div>
           <a
-            href={`https://polymarket.com/event/${position.market_id}`}
+            href={`https://polymarket.com/search?q=${encodeURIComponent(position.market_name)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-blue-500 dark:hover:text-blue-400 transition-colors cursor-pointer"
-            title="View on Polymarket"
+            title="Search on Polymarket"
           >
             <span>📊</span>
             <span className="font-mono">{position.id.slice(0, 8)}</span>

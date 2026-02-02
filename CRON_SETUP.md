@@ -35,20 +35,23 @@ vercel --prod --yes
 ## Fréquence d'Exécution
 
 Le bot s'exécute automatiquement:
-- **Toutes les 2 heures**: 00:00, 02:00, 04:00, 06:00, 08:00, 10:00, 12:00, 14:00, 16:00, 18:00, 20:00, 22:00 UTC
+- **Toutes les 30 minutes**: Pour un meilleur monitoring des Take-Profit et Stop-Loss
 
 Pour changer la fréquence, modifie `.github/workflows/bot-cron.yml`:
 
 ```yaml
 schedule:
+  # Toutes les 15 minutes (très fréquent)
+  - cron: '*/15 * * * *'
+
+  # Toutes les 30 minutes (actuel - recommandé)
+  - cron: '*/30 * * * *'
+
   # Toutes les heures
   - cron: '0 * * * *'
 
-  # Toutes les 2 heures (actuel)
+  # Toutes les 2 heures
   - cron: '0 */2 * * *'
-
-  # Toutes les 4 heures
-  - cron: '0 */4 * * *'
 ```
 
 ## Exécution Manuelle

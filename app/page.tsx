@@ -122,7 +122,7 @@ export default function Dashboard() {
           <StatCard
             label="Active Positions"
             value={positions.length}
-            subtext="Max: 2"
+            subtext={config ? `Max: ${config.maxPositions}` : 'Max: 2'}
             color="blue"
           />
           <StatCard
