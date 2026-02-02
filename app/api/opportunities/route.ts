@@ -15,15 +15,28 @@ export async function GET(request: Request) {
       .from('market_scan')
       .select('*')
       .gte('scanned_at', oneDayAgo)
-      .order('flip_ev', { ascending: false })
-      .limit(limit);
+      .order('scanned_at', { ascending: false });
 
     if (error) {
       throw error;
     }
 
+    // Dédupliquer par market_id - garder le scan le plus récent pour chaque marché
+    const uniqueScans = new Map();
+
+    for (const scan of scans || []) {
+      if (!uniqueScans.has(scan.market_id)) {
+        uniqueScans.set(scan.market_id, scan);
+      }
+    }
+
+    // Convertir en tableau et trier par flip_ev (meilleure opportunité en premier)
+    const deduplicatedScans = Array.from(uniqueScans.values())
+      .sort((a, b) => Number(b.flip_ev) - Number(a.flip_ev))
+      .slice(0, limit);
+
     // Transformer en format Opportunity
-    const opportunities = (scans || []).map((scan) => ({
+    const opportunities = deduplicatedScans.map((scan) => ({
       marketId: scan.market_id,
       marketName: scan.market_name,
       entryPrice: 0, // Non stocké dans market_scan
