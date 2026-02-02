@@ -1,0 +1,19 @@
+[Unit]
+Description=Polymarket Bot Execution Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/bot-polymarket/bot-service
+ExecStart=/home/ubuntu/.deno/bin/deno run --allow-net --allow-env --allow-read --env-file=.env main.ts
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/polymarket-bot.log
+StandardError=append:/var/log/polymarket-bot-error.log
+
+# Environment
+Environment="DENO_DIR=/home/ubuntu/.deno"
+
+[Install]
+WantedBy=multi-user.target
