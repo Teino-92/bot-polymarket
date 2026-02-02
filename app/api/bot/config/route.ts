@@ -24,7 +24,7 @@ export async function GET() {
         stop_loss_percent: 0.15,
         take_profit_percent: 0.08,
         max_positions: 2,
-        max_position_size_eur: 75,
+        max_position_size_eur: 5,  // Ajusté pour petit capital
         is_paused: false,
       };
 

@@ -2,9 +2,9 @@ import type { MarketFilters, RiskParams } from './types';
 
 export const BOT_CONFIG = {
   // Capital & positions
-  totalCapitalEur: 150,
+  totalCapitalEur: 10,    // Ajusté à ton capital réel
   maxPositions: 2,
-  maxPositionSizeEur: 75,
+  maxPositionSizeEur: 5,  // 5€ max par position (50% du capital)
   maxTotalExposure: 0.90, // 90% max
 
   // HVS & FlipEV thresholds
