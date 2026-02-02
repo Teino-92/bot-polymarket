@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [hasMetaMask, setHasMetaMask] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [walletName, setWalletName] = useState<string>('Wallet');
   const [loginMethod, setLoginMethod] = useState<'metamask' | 'walletconnect' | null>(null);
   const router = useRouter();
 
@@ -26,14 +28,26 @@ export default function LoginPage() {
   const { disconnect } = useDisconnect();
 
   useEffect(() => {
+    // Detect if user is on mobile
+    const checkMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(checkMobile);
+
     // Check if any wallet extension is installed (MetaMask, Rabby, etc.)
     setHasMetaMask(typeof window.ethereum !== 'undefined');
 
-    // Log detected wallet for debugging
+    // Detect which wallet is installed for better UX
     if (window.ethereum) {
       const isRabby = window.ethereum.isRabby;
       const isMetaMask = window.ethereum.isMetaMask;
       console.log('Wallet detected:', { isRabby, isMetaMask });
+
+      if (isRabby) {
+        setWalletName('Rabby Wallet');
+      } else if (isMetaMask) {
+        setWalletName('MetaMask');
+      } else {
+        setWalletName('Browser Wallet');
+      }
     }
   }, []);
 
@@ -323,60 +337,71 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* MetaMask Button */}
-          {hasMetaMask && (
-            <button
-              onClick={handleMetaMaskConnect}
-              disabled={loading}
-              className={`w-full py-4 px-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center mb-3 ${
-                loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-orange-600 hover:bg-orange-700 active:scale-95'
-              }`}
-            >
-              {loading && loginMethod === 'metamask' ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
+          {/* Desktop: Show Browser Wallet First */}
+          {!isMobile && hasMetaMask && (
+            <>
+              <button
+                onClick={handleMetaMaskConnect}
+                disabled={loading}
+                className={`w-full py-4 px-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center mb-3 ${
+                  loading
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 active:scale-95 shadow-lg'
+                }`}
+              >
+                {loading && loginMethod === 'metamask' ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-6 h-6 mr-2"
+                      fill="none"
                       stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-6 h-6 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  MetaMask
-                </>
-              )}
-            </button>
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                      />
+                    </svg>
+                    {walletName} (Recommended)
+                  </>
+                )}
+              </button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">or</span>
+                </div>
+              </div>
+            </>
           )}
 
           {/* WalletConnect Button */}
@@ -386,6 +411,8 @@ export default function LoginPage() {
             className={`w-full py-4 px-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center ${
               loading
                 ? 'bg-gray-400 cursor-not-allowed'
+                : isMobile
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 active:scale-95 shadow-lg'
                 : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
             }`}
           >
@@ -422,10 +449,37 @@ export default function LoginPage() {
                 >
                   <path d="M7.03 4.95c3.49-3.49 9.15-3.49 12.64 0l.42.42a.43.43 0 0 1 0 .61l-1.44 1.44a.22.22 0 0 1-.31 0l-.58-.58a6.39 6.39 0 0 0-9.03 0l-.62.62a.22.22 0 0 1-.31 0L6.36 6.02a.43.43 0 0 1 0-.61l.67-.46zm15.61 2.99l1.28 1.28c.17.17.17.44 0 .61l-5.77 5.77a.44.44 0 0 1-.62 0l-4.1-4.1a.11.11 0 0 0-.15 0l-4.1 4.1a.44.44 0 0 1-.62 0L2.79 9.83a.43.43 0 0 1 0-.61l1.28-1.28a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .62 0l4.1 4.1a.11.11 0 0 0 .15 0l4.1-4.1a.44.44 0 0 1 .63 0z" />
                 </svg>
-                WalletConnect (Mobile)
+                {isMobile ? 'WalletConnect (Recommended)' : 'WalletConnect'}
               </>
             )}
           </button>
+
+          {/* Desktop: Show browser wallet option if available but not shown */}
+          {!isMobile && !hasMetaMask && (
+            <div className="mt-4">
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">or install a wallet</span>
+                </div>
+              </div>
+
+              <a
+                href="https://rabby.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-lg font-medium text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-orange-500 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                  <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                </svg>
+                Install Rabby Wallet
+              </a>
+            </div>
+          )}
 
           {/* Info */}
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -444,14 +498,20 @@ export default function LoginPage() {
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 <p className="font-semibold mb-1">How it works:</p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Choose MetaMask (desktop) or WalletConnect (mobile)</li>
+                  <li>{isMobile ? 'Use WalletConnect to connect your mobile wallet' : 'Use your browser wallet extension (faster)'}</li>
                   <li>Sign a message to prove ownership</li>
                   <li>Access granted if you're the authorized wallet</li>
                 </ol>
-                <p className="mt-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
-                  📱 On mobile? Use WalletConnect with MetaMask/Trust Wallet
-                </p>
-                <p className="mt-1 text-yellow-600 dark:text-yellow-400 font-semibold">
+                {isMobile ? (
+                  <p className="mt-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                    📱 Compatible with MetaMask, Rainbow, Trust Wallet & more
+                  </p>
+                ) : (
+                  <p className="mt-2 text-orange-600 dark:text-orange-400 font-semibold text-xs">
+                    💻 Browser wallet opens automatically - no QR codes needed
+                  </p>
+                )}
+                <p className="mt-1 text-green-600 dark:text-green-400 font-semibold">
                   No gas fees • No blockchain transactions • Fully secure
                 </p>
               </div>
