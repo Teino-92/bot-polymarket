@@ -1,6 +1,6 @@
 # Configuration du Cron GitHub Actions
 
-Le bot s'exécute automatiquement toutes les 2 heures via GitHub Actions.
+Le bot s'exécute automatiquement toutes les 30 minutes via GitHub Actions.
 
 ## Configuration Requise
 

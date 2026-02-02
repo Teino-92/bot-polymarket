@@ -299,6 +299,7 @@ vercel --prod                # Deploy to Vercel
 - **[SETUP.md](./SETUP.md)** - Local development setup
 - **[DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md)** - Production deployment (Railway/Render - FREE)
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment (EC2 - Full control)
+- **[CRON_SETUP.md](./CRON_SETUP.md)** - Automated execution setup (GitHub Actions)
 - **[SECURITY.md](./SECURITY.md)** - Security best practices
 - **[TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md)** - Telegram notifications setup
 
