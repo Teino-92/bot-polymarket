@@ -34,7 +34,7 @@ export const BOT_CONFIG = {
 
   // Execution
   cronIntervalHours: 4,    // Run bot every 4 hours
-  simulationMode: true,     // TOUJOURS démarrer en simulation !
+  simulationMode: false,    // Mode PRODUCTION - vraies transactions Polymarket
 } as const;
 
 export const RISK_PARAMS: RiskParams = {
