@@ -58,8 +58,11 @@ export async function GET(request: Request) {
               unrealized_pnl_eur: unrealizedPnL,
             })
             .eq('id', position.id)
-            .then(() => {})
-            .catch((err) => console.error('Error updating position:', err));
+            .then((result) => {
+              if (result.error) {
+                console.error('Error updating position:', result.error);
+              }
+            });
 
           // Return updated data immediately
           return {
