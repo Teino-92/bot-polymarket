@@ -72,27 +72,21 @@ export default function LiveMonitoring({ isPaused = false }: LiveMonitoringProps
     };
   }, []);
 
-  // Calculate time until next cron (every 30 minutes: :00 and :30)
+  // Calculate time until next cron (every 1 minute)
   const getNextCronTime = () => {
     const now = currentTime;
-    const minutes = now.getMinutes();
     const nextCron = new Date(now);
 
-    // Next cron is either at :00 or :30
-    if (minutes < 30) {
-      nextCron.setMinutes(30, 0, 0);
-    } else {
-      nextCron.setHours(nextCron.getHours() + 1, 0, 0, 0);
-    }
+    // Next execution is at the start of the next minute
+    nextCron.setMinutes(nextCron.getMinutes() + 1, 0, 0);
 
     const diff = nextCron.getTime() - now.getTime();
-    const minutes_left = Math.floor(diff / (1000 * 60));
-    const seconds_left = Math.floor((diff % (1000 * 60)) / 1000);
+    const seconds_left = Math.floor(diff / 1000);
 
     return {
-      text: `${minutes_left}m ${seconds_left}s`,
+      text: `${seconds_left}s`,
       nextTime: nextCron.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      percent: ((30 * 60 * 1000 - diff) / (30 * 60 * 1000)) * 100,
+      percent: ((60 * 1000 - diff) / (60 * 1000)) * 100,
     };
   };
 
