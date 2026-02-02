@@ -85,6 +85,8 @@ export async function scanTopMarkets(
       action: analysis.action,
       reasoning: analysis.reasoning + ` (Q:${(qualityScore * 100).toFixed(0)}%)`,
       confidence: analysis.confidence,
+      bestBid: market.bestBid,
+      bestAsk: market.bestAsk,
     };
 
     return opportunity;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { riskManager } from '@/lib/polymarket/risk-manager';
 import { scanTopMarkets, getBestOpportunity } from '@/lib/polymarket/market-selector';
+import { decideSide } from '@/lib/polymarket/strategy';
 import { polymarketClient } from '@/lib/polymarket/client';
 import { supabaseAdmin } from '@/lib/supabase';
 import { BOT_CONFIG } from '@/lib/config';
@@ -108,32 +109,41 @@ export async function POST(request: Request) {
       });
     }
 
-    // 6. Placer l'ordre
+    // 6. Décider du côté (YES ou NO) basé sur le prix et la stratégie
+    const side = decideSide({
+      strategy: best.action as 'HOLD' | 'FLIP',
+      bestBid: best.bestBid,
+      bestAsk: best.bestAsk,
+    });
+
+    console.log(`   Decided side: ${side} (strategy: ${best.action})`);
+
+    // 7. Placer l'ordre
     console.log(`   Placing order...`);
     const order = await polymarketClient.placeLimitOrder({
       marketId: best.marketId,
-      side: 'YES', // Toujours YES pour simplifier (peut être amélioré)
+      side,
       price: best.entryPrice,
       size: BOT_CONFIG.maxPositionSizeEur,
     });
 
     console.log(`   Order placed: ${order.orderId}`);
 
-    // 7. Calculer stop-loss et take-profit
-    const stopLossPrice = riskManager.calculateStopLoss(best.entryPrice, 'YES');
+    // 8. Calculer stop-loss et take-profit
+    const stopLossPrice = riskManager.calculateStopLoss(best.entryPrice, side);
     const takeProfitPrice = riskManager.calculateTakeProfit(
       best.entryPrice,
-      'YES',
+      side,
       best.action as 'HOLD' | 'FLIP'
     );
 
-    // 8. Enregistrer position en DB
+    // 9. Enregistrer position en DB
     const { data: position, error: positionError } = await supabaseAdmin
       .from('positions')
       .insert({
         market_id: best.marketId,
         market_name: best.marketName,
-        side: 'YES',
+        side,
         strategy: best.action,
         entry_price: best.entryPrice,
         current_price: best.entryPrice,
@@ -151,11 +161,11 @@ export async function POST(request: Request) {
       throw positionError;
     }
 
-    // 9. Enregistrer trade en DB
+    // 10. Enregistrer trade en DB
     await supabaseAdmin.from('trades').insert({
       market_id: best.marketId,
       market_name: best.marketName,
-      side: 'YES',
+      side,
       strategy: best.action,
       entry_price: best.entryPrice,
       position_size_eur: BOT_CONFIG.maxPositionSizeEur,
@@ -170,6 +180,7 @@ export async function POST(request: Request) {
     // Envoyer notification Telegram
     await notifyPositionOpened({
       marketName: best.marketName,
+      side,
       strategy: best.action,
       entryPrice: best.entryPrice,
       size: BOT_CONFIG.maxPositionSizeEur,

@@ -173,4 +173,6 @@ export interface Opportunity extends MarketAnalysis {
   action: StrategyAction;
   reasoning: string;
   confidence: StrategyConfidence;
+  bestBid: number;
+  bestAsk: number;
 }

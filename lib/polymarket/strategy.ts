@@ -113,6 +113,43 @@ export function analyzeMarket(params: {
 }
 
 /**
+ * Décide du côté optimal (YES ou NO) basé sur le prix et la stratégie
+ *
+ * Logique:
+ * - Pour HOLD: Prendre le côté undervalued (chercher de la value)
+ *   - Si price < 0.50 → YES (on pense que ça va monter)
+ *   - Si price > 0.50 → NO (on pense que ça va descendre)
+ *
+ * - Pour FLIP: Prendre le côté avec le meilleur spread (chercher du volume)
+ *   - Comparer (ask_yes - bid_yes) vs (ask_no - bid_no)
+ *   - Prendre le côté avec le spread le plus large
+ */
+export function decideSide(params: {
+  strategy: 'HOLD' | 'FLIP';
+  bestBid: number;
+  bestAsk: number;
+}): 'YES' | 'NO' {
+  const { strategy, bestBid, bestAsk } = params;
+  const midPrice = (bestBid + bestAsk) / 2;
+
+  if (strategy === 'HOLD') {
+    // Pour HOLD: Chercher de la value
+    // Si le marché est < 50%, on pense que YES est undervalued
+    // Si le marché est > 50%, on pense que NO est undervalued
+    return midPrice < 0.50 ? 'YES' : 'NO';
+  } else {
+    // Pour FLIP: Prendre le côté avec le meilleur spread
+    // Le spread YES est égal au spread NO dans les marchés binaires
+    // Donc on optimise pour le côté le plus liquide (généralement YES)
+    // OU on peut alterner pour diversifier
+
+    // Stratégie simple: Prendre YES si price < 0.65, sinon NO
+    // Cela permet de capturer plus de volume sur les marchés populaires
+    return midPrice < 0.65 ? 'YES' : 'NO';
+  }
+}
+
+/**
  * Compare deux opportunités et retourne la meilleure
  * Priorité: FlipEV (pour farming airdrop)
  */
