@@ -209,22 +209,22 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
         {filteredTrades.length} trade{filteredTrades.length > 1 ? 's' : ''} found
       </div>
 
-      {/* Tableau */}
-      <div className="overflow-x-auto">
+      {/* Tableau - Scrollable container on mobile */}
+      <div className="overflow-x-auto max-h-[400px] md:max-h-none overflow-y-auto md:overflow-y-visible">
         {filteredTrades.length > 0 ? (
           <table className="w-full text-sm text-left text-slate-700 dark:text-slate-300">
-            <thead className="text-xs uppercase bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <thead className="text-xs uppercase bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3">Marché</th>
-                <th className="px-4 py-3">Stratégie</th>
-                <th className="px-4 py-3">Side</th>
-                <th className="px-4 py-3">Prix Entrée</th>
-                <th className="px-4 py-3">Prix Sortie</th>
-                <th className="px-4 py-3">Taille</th>
-                <th className="px-4 py-3">PnL</th>
-                <th className="px-4 py-3">Durée</th>
-                <th className="px-4 py-3">Date Ouverture</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Statut</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Marché</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Stratégie</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Side</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Prix Entrée</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Prix Sortie</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Taille</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">PnL</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Durée</th>
+                <th className="px-4 py-3 bg-slate-200 dark:bg-slate-800">Date Ouverture</th>
               </tr>
             </thead>
             <tbody>
@@ -286,6 +286,14 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
           </div>
         )}
       </div>
+
+      {/* Scroll indicator on mobile */}
+      {filteredTrades.length > 3 && (
+        <div className="md:hidden mt-3 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+          <span>↕️</span>
+          <span>Scroll to see more trades</span>
+        </div>
+      )}
       </div>
     </div>
   );

@@ -41,12 +41,12 @@ export function StatCard({ label, value, change, subtext, color = 'gray' }: Stat
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium mb-2 uppercase tracking-wide">{label}</p>
 
         {/* Value with gradient text */}
-        <div className="flex items-baseline gap-2 mb-1">
-          <p className={`text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${textGradients[color]}`}>
+        <div className="mb-1">
+          <p className={`text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${textGradients[color]} mb-2`}>
             {value}
           </p>
           {change !== undefined && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
+            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg ${
               change >= 0
                 ? 'bg-emerald-500/20 text-emerald-400'
                 : 'bg-red-500/20 text-red-400'
