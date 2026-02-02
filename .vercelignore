@@ -1,6 +1,7 @@
 supabase/functions/
 supabase/migrations/
 websocket-service/
+bot-service/
 scripts/
 *.md
 .cursorrules
