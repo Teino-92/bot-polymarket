@@ -1,4 +1,5 @@
 import { ClobClient, Side } from '@polymarket/clob-client';
+import { BuilderConfig } from '@polymarket/builder-signing-sdk';
 import { Wallet } from '@ethersproject/wallet';
 import type { MarketData, OrderParams, OrderResult } from '../types';
 import { marketCache } from './cache';
@@ -46,17 +47,34 @@ export class PolymarketClient {
     const creds = await this.clobClient.createOrDeriveApiKey();
     console.log(`[POLYMARKET] L2 API key derived for address ${wallet.address}`);
 
-    // Re-instantiate with L2 creds (and optional geo-block bypass token)
+    // Re-instantiate with L2 creds + Builder auth (bypasses Cloudflare on POST /order)
     const geoBlockToken = process.env.POLYMARKET_GEO_BLOCK_TOKEN;
-    console.log(`[POLYMARKET] geo_block_token: ${geoBlockToken ? 'SET (' + geoBlockToken.slice(0, 8) + '…)' : 'NOT SET — requests may be geo-blocked'}`);
+
+    // Builder credentials — required for POST /order to pass Cloudflare
+    const builderKey = process.env.POLYMARKET_BUILDER_KEY;
+    const builderSecret = process.env.POLYMARKET_BUILDER_SECRET;
+    const builderPassphrase = process.env.POLYMARKET_BUILDER_PASSPHRASE;
+
+    let builderConfig: BuilderConfig | undefined;
+    if (builderKey && builderSecret && builderPassphrase) {
+      builderConfig = new BuilderConfig({
+        localBuilderCreds: { key: builderKey, secret: builderSecret, passphrase: builderPassphrase },
+      });
+      console.log(`[POLYMARKET] Builder auth: SET (key=${builderKey.slice(0, 8)}…)`);
+    } else {
+      console.log('[POLYMARKET] Builder auth: NOT SET — POST /order will likely be blocked by Cloudflare');
+    }
+
     this.clobClient = new ClobClient(
       CLOB_HOST,
       POLYGON_CHAIN_ID,
       wallet,
       creds,
-      undefined, // signatureType — default
-      undefined, // funderAddress — default
-      geoBlockToken
+      undefined, // signatureType
+      undefined, // funderAddress
+      geoBlockToken,
+      undefined, // useServerTime
+      builderConfig
     );
     this.initialized = true;
     return this.clobClient;
