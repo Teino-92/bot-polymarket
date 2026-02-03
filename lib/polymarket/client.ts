@@ -51,9 +51,9 @@ export class PolymarketClient {
     const geoBlockToken = process.env.POLYMARKET_GEO_BLOCK_TOKEN;
 
     // Builder credentials — required for POST /order to pass Cloudflare
-    const builderKey = process.env.POLYMARKET_BUILDER_KEY;
-    const builderSecret = process.env.POLYMARKET_BUILDER_SECRET;
-    const builderPassphrase = process.env.POLYMARKET_BUILDER_PASSPHRASE;
+    const builderKey = process.env.POLYMARKET_BUILDER_KEY?.trim();
+    const builderSecret = process.env.POLYMARKET_BUILDER_SECRET?.trim();
+    const builderPassphrase = process.env.POLYMARKET_BUILDER_PASSPHRASE?.trim();
 
     let builderConfig: BuilderConfig | undefined;
     if (builderKey && builderSecret && builderPassphrase) {
