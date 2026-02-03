@@ -46,8 +46,17 @@ export class PolymarketClient {
     const creds = await this.clobClient.createOrDeriveApiKey();
     console.log(`[POLYMARKET] L2 API key derived for address ${wallet.address}`);
 
-    // Re-instantiate with L2 creds so signed requests include them
-    this.clobClient = new ClobClient(CLOB_HOST, POLYGON_CHAIN_ID, wallet, creds);
+    // Re-instantiate with L2 creds (and optional geo-block bypass token)
+    const geoBlockToken = process.env.POLYMARKET_GEO_BLOCK_TOKEN;
+    this.clobClient = new ClobClient(
+      CLOB_HOST,
+      POLYGON_CHAIN_ID,
+      wallet,
+      creds,
+      undefined, // signatureType — default
+      undefined, // funderAddress — default
+      geoBlockToken
+    );
     this.initialized = true;
     return this.clobClient;
   }
