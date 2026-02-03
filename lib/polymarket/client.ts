@@ -193,8 +193,16 @@ export class PolymarketClient {
 
       console.log('[POLYMARKET] Order result:', JSON.stringify(result));
 
+      // Guard: SDK does not always throw on HTTP errors (e.g. Cloudflare 403).
+      // If the result lacks a real orderID, treat it as a failed order.
+      const orderId = result?.orderID || result?.id;
+      if (!orderId) {
+        const detail = result?.error || result?.message || JSON.stringify(result);
+        throw new Error(`[POLYMARKET] Order failed — no orderID returned. Detail: ${detail}`);
+      }
+
       return {
-        orderId: result?.orderID || result?.id || `order-${Date.now()}`,
+        orderId,
         txHash: result?.transactionHash || result?.tx_hash || '',
         status: result?.status || 'posted',
       };
