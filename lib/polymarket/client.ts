@@ -48,6 +48,7 @@ export class PolymarketClient {
 
     // Re-instantiate with L2 creds (and optional geo-block bypass token)
     const geoBlockToken = process.env.POLYMARKET_GEO_BLOCK_TOKEN;
+    console.log(`[POLYMARKET] geo_block_token: ${geoBlockToken ? 'SET (' + geoBlockToken.slice(0, 8) + '…)' : 'NOT SET — requests may be geo-blocked'}`);
     this.clobClient = new ClobClient(
       CLOB_HOST,
       POLYGON_CHAIN_ID,
