@@ -1,6 +1,7 @@
 // Market & Trading Types
 export interface MarketData {
-  id: string;
+  id: string;             // conditionId from Gamma API
+  yesTokenId?: string;    // CLOB tokenID for the YES outcome
   question: string;
   category: string;
   endDate: string;
@@ -8,14 +9,15 @@ export interface MarketData {
   bestBid: number;
   bestAsk: number;
   volume24h?: number;
-  volume1w?: number;       // Volume sur 1 semaine
-  volume1mo?: number;      // Volume sur 1 mois
-  priceChange1h?: number;  // Variation de prix sur 1h (momentum)
-  lastTradePrice?: number; // Dernier prix de trade
+  volume1w?: number;
+  volume1mo?: number;
+  priceChange1h?: number;
+  lastTradePrice?: number;
 }
 
 export interface MarketAnalysis {
   marketId: string;
+  yesTokenId?: string;
   marketName: string;
   entryPrice: number;
   spread: number;
@@ -140,6 +142,7 @@ export interface MarketFilters {
 // Order Types
 export interface OrderParams {
   marketId: string;
+  yesTokenId?: string;
   side: TradeSide;
   price: number;
   size: number;

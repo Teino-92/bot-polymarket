@@ -122,6 +122,7 @@ export async function POST(request: Request) {
     console.log(`   Placing order...`);
     const order = await polymarketClient.placeLimitOrder({
       marketId: best.marketId,
+      yesTokenId: best.yesTokenId,
       side,
       price: best.entryPrice,
       size: BOT_CONFIG.maxPositionSizeEur,

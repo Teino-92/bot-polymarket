@@ -1,21 +1,23 @@
-import type { MarketData, OrderParams, OrderResult, TradeSide } from '../types';
+import { ClobClient, Side } from '@polymarket/clob-client';
+import { Wallet } from '@ethersproject/wallet';
+import type { MarketData, OrderParams, OrderResult } from '../types';
 import { marketCache } from './cache';
 
+const CLOB_HOST = 'https://clob.polymarket.com';
+const POLYGON_CHAIN_ID = 137;
+
 /**
- * Polymarket CLOB API Client
- * Documentation: https://docs.polymarket.com
- *
- * IMPORTANT: Ce client démarre TOUJOURS en mode simulation.
- * Pour activer le mode réel, il faut explicitement passer SIMULATION_MODE=false
+ * Polymarket CLOB API Client using the official @polymarket/clob-client SDK.
+ * Auth: L1 private key → L2 API credentials (key/secret/passphrase).
+ * Set POLYMARKET_PRIVATE_KEY env var to your main wallet private key.
+ * Set SIMULATION_MODE=false to enable real trading.
  */
 export class PolymarketClient {
-  private baseUrl: string;
-  private apiKey?: string;
   private simulationMode: boolean;
+  private clobClient: ClobClient | null = null;
+  private initialized = false;
 
   constructor() {
-    this.baseUrl = process.env.POLYMARKET_CLOB_URL || 'https://clob.polymarket.com';
-    this.apiKey = process.env.POLYMARKET_API_KEY;
     this.simulationMode = process.env.SIMULATION_MODE !== 'false';
 
     if (this.simulationMode) {
@@ -23,6 +25,31 @@ export class PolymarketClient {
     } else {
       console.log('⚠️  [POLYMARKET] Running in REAL TRADING mode');
     }
+  }
+
+  /**
+   * Lazy-initializes the ClobClient and derives L2 API credentials.
+   * Only called when actually placing/cancelling orders in real mode.
+   */
+  private async ensureClobClient(): Promise<ClobClient> {
+    if (this.clobClient && this.initialized) return this.clobClient;
+
+    const privateKey = process.env.POLYMARKET_PRIVATE_KEY;
+    if (!privateKey) {
+      throw new Error('[POLYMARKET] POLYMARKET_PRIVATE_KEY env var is not set');
+    }
+
+    const wallet = new Wallet(privateKey);
+    this.clobClient = new ClobClient(CLOB_HOST, POLYGON_CHAIN_ID, wallet);
+
+    // Derive L2 API key (creates one if it doesn't exist yet)
+    const creds = await this.clobClient.createOrDeriveApiKey();
+    console.log(`[POLYMARKET] L2 API key derived for address ${wallet.address}`);
+
+    // Re-instantiate with L2 creds so signed requests include them
+    this.clobClient = new ClobClient(CLOB_HOST, POLYGON_CHAIN_ID, wallet, creds);
+    this.initialized = true;
+    return this.clobClient;
   }
 
   /**
@@ -79,25 +106,26 @@ export class PolymarketClient {
   }
 
   /**
-   * Récupère le prix actuel d'un marché spécifique
+   * Récupère le prix actuel d'un marché (mid-price du YES token).
+   * En simulation retourne un prix aléatoire.
+   * En production utilise le CLOB SDK via getMarket pour obtenir le tokenID,
+   * puis getPrice sur le YES token.
    */
   async getPrice(marketId: string): Promise<number> {
     if (this.simulationMode) {
-      // Prix simulé avec variation aléatoire
-      return 0.45 + Math.random() * 0.3; // Entre 0.45 et 0.75
+      return 0.45 + Math.random() * 0.3;
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/markets/${marketId}/price`, {
-        headers: this.getHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch price for ${marketId}: ${response.statusText}`);
+      const client = await this.ensureClobClient();
+      // getMarket returns market details including tokens
+      const market = await client.getMarket(marketId);
+      const yesToken = market?.tokens?.find((t: any) => t.outcome === 'Yes');
+      if (!yesToken?.token_id) {
+        throw new Error(`No YES token found for market ${marketId}`);
       }
-
-      const data = await response.json();
-      return data.price;
+      const midpoint = await client.getMidpoint(yesToken.token_id);
+      return midpoint.mid;
     } catch (error) {
       console.error('[POLYMARKET] Error fetching price:', error);
       throw error;
@@ -105,13 +133,17 @@ export class PolymarketClient {
   }
 
   /**
-   * Place un ordre limite sur un marché
-   * CRITICAL: En mode simulation, ne fait qu'un log
+   * Place un ordre limite sur un marché via le CLOB SDK.
+   *
+   * tokenID mapping:
+   *   - side YES  → BUY  the YES token at `price`
+   *   - side NO   → SELL the YES token at `price` (equivalent to buying NO)
+   *
+   * If yesTokenId is not provided, we fetch it from the CLOB market endpoint.
    */
   async placeLimitOrder(params: OrderParams): Promise<OrderResult> {
     const { marketId, side, price, size } = params;
 
-    // MODE SIMULATION: log seulement, pas de vrai ordre
     if (this.simulationMode) {
       console.log('🎮 [SIMULATION] Would place order:', {
         marketId,
@@ -119,44 +151,52 @@ export class PolymarketClient {
         price: price.toFixed(4),
         sizeEur: size.toFixed(2),
       });
-
-      // Simuler succès avec fake tx hash
-      const orderId = `sim-${Date.now()}`;
-      const txHash = `0xsimulated${Math.random().toString(36).substr(2, 9)}`;
-
       return {
-        orderId,
-        txHash,
+        orderId: `sim-${Date.now()}`,
+        txHash: `0xsimulated${Math.random().toString(36).substr(2, 9)}`,
         status: 'simulated',
       };
     }
 
-    // MODE REAL: vraie exécution
     try {
-      console.log('🔴 [REAL TRADING] Placing order:', params);
+      const client = await this.ensureClobClient();
 
-      const response = await fetch(`${this.baseUrl}/orders`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({
-          market_id: marketId,
-          side: side.toLowerCase(),
-          price,
-          size,
-          order_type: 'LIMIT',
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to place order: ${response.statusText}`);
+      // Resolve YES tokenID
+      let tokenID: string = params.yesTokenId!;
+      if (!tokenID) {
+        const market = await client.getMarket(marketId);
+        const yesToken = market?.tokens?.find((t: any) => t.outcome === 'Yes');
+        if (!yesToken?.token_id) {
+          throw new Error(`No YES token found for conditionId ${marketId}`);
+        }
+        tokenID = yesToken.token_id;
       }
 
-      const data = await response.json();
+      // Determine tick size for this token
+      const tickSize = await client.getTickSize(tokenID);
+
+      // YES → BUY the YES token; NO → SELL the YES token
+      const clobSide = side === 'YES' ? Side.BUY : Side.SELL;
+
+      console.log('🔴 [REAL TRADING] Placing order via CLOB SDK:', {
+        tokenID,
+        clobSide,
+        price,
+        size,
+        tickSize,
+      });
+
+      const result = await client.createAndPostOrder(
+        { tokenID, price, size, side: clobSide },
+        { tickSize }
+      );
+
+      console.log('[POLYMARKET] Order result:', JSON.stringify(result));
 
       return {
-        orderId: data.order_id,
-        txHash: data.tx_hash,
-        status: data.status,
+        orderId: result?.orderID || result?.id || `order-${Date.now()}`,
+        txHash: result?.transactionHash || result?.tx_hash || '',
+        status: result?.status || 'posted',
       };
     } catch (error) {
       console.error('[POLYMARKET] Error placing order:', error);
@@ -165,7 +205,7 @@ export class PolymarketClient {
   }
 
   /**
-   * Annule un ordre existant
+   * Annule un ordre existant via le CLOB SDK.
    */
   async cancelOrder(orderId: string): Promise<void> {
     if (this.simulationMode) {
@@ -174,49 +214,13 @@ export class PolymarketClient {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/orders/${orderId}`, {
-        method: 'DELETE',
-        headers: this.getHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to cancel order: ${response.statusText}`);
-      }
+      const client = await this.ensureClobClient();
+      await client.cancelOrder({ orderID: orderId });
+      console.log(`[POLYMARKET] Cancelled order ${orderId}`);
     } catch (error) {
       console.error('[POLYMARKET] Error canceling order:', error);
       throw error;
     }
-  }
-
-  /**
-   * Headers pour les requêtes API
-   */
-  private getHeaders(): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-
-    if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    }
-
-    return headers;
-  }
-
-  /**
-   * Parse les données de marchés depuis l'API
-   */
-  private parseMarkets(data: any[]): MarketData[] {
-    return data.map((market) => ({
-      id: market.id || market.market_id,
-      question: market.question || market.title,
-      category: market.category || 'unknown',
-      endDate: market.end_date || market.close_time,
-      liquidity: market.liquidity || 0,
-      bestBid: market.best_bid || 0,
-      bestAsk: market.best_ask || 0,
-      volume24h: market.volume_24h,
-    }));
   }
 
   /**
@@ -255,8 +259,16 @@ export class PolymarketClient {
           }
         }
 
+        // Extract YES token ID from Gamma tokens array
+        let yesTokenId: string | undefined;
+        if (Array.isArray(market.tokens)) {
+          const yesToken = market.tokens.find((t: any) => t.outcome === 'Yes');
+          yesTokenId = yesToken?.token_id;
+        }
+
         return {
           id: market.conditionId || market.id || `gamma-${Date.now()}`,
+          yesTokenId,
           question: market.question,
           category: market.groupItemTitle || 'unknown',
           endDate: market.endDateIso,

@@ -74,6 +74,7 @@ export async function scanTopMarkets(
 
     const opportunity: Opportunity = {
       marketId: market.id,
+      yesTokenId: market.yesTokenId,
       marketName: market.question,
       entryPrice: market.bestBid,
       spread,

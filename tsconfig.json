@@ -37,6 +37,8 @@
   "exclude": [
     "node_modules",
     "supabase/functions",
-    "websocket-service"
+    "websocket-service",
+    "bot-service",
+    "scripts"
   ]
 }
